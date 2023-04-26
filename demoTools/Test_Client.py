@@ -1,6 +1,6 @@
 import socket
 
-hostname = "www.example.com"
+hostname = "www.example.org"
 port = 80
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect((hostname, port))
