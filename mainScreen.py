@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import subprocess
 
 # Form implementation generated from reading ui file 'mainScreen.ui'
 #
@@ -10,20 +9,17 @@ import subprocess
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QMainWindow
 
 import capturePage
 import netifaces
 import deviceSetup
 import sys
 
-import proxyPage
-
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(800, 450)
+        MainWindow.resize(800, 280)
 
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -37,13 +33,7 @@ class Ui_MainWindow(object):
 
         self.save_toCapture.setFont(font)
         self.save_toCapture.setObjectName("save_toCapture")
-        self.save_toCapture.clicked.connect(lambda: self.set_interfaces(True))
-
-        self.save_toProxy = QtWidgets.QPushButton(self.centralwidget)
-        self.save_toProxy.setGeometry(QtCore.QRect(200, 250, 400, 91))
-        self.save_toProxy.setFont(font)
-        self.save_toProxy.setObjectName("toProxy")
-        self.save_toProxy.clicked.connect(lambda: self.set_interfaces(False))
+        self.save_toCapture.clicked.connect(self.set_interfaces)
 
         self.layoutWidget = QtWidgets.QWidget(self.centralwidget)
         self.layoutWidget.setGeometry(QtCore.QRect(120, 50, 503, 27))
@@ -86,8 +76,7 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("Main", "Main"))
-        self.save_toCapture.setText(_translate("MainWindow", "Save and do capture test!"))
-        self.save_toProxy.setText(_translate("MainWindow", "Save and do proxy test!"))
+        self.save_toCapture.setText(_translate("MainWindow", "Save and continue to capture page."))
         self.label.setText(_translate("MainWindow", "Select input interface:"))
         self.label_2.setText(_translate("MainWindow", "Select output interface:"))
 
@@ -97,20 +86,17 @@ class Ui_MainWindow(object):
         self.ui.setupUi(self.captureWindow, deviceSetup.input_interface)
         self.captureWindow.show()
 
-    def set_interfaces(self, cap):
+    def set_interfaces(self):
         deviceSetup.input_interface = self.comboBox_inputInterface.currentText()
         deviceSetup.output_interface = self.comboBox_outputInterface.currentText()
         deviceSetup.configure_device()
-        if cap:
-            self.to_capturePage()
-        else:
-            self.to_proxyPage()
+        self.to_capturePage()
 
-    def to_proxyPage(self):
-        self.proxyWindow = QtWidgets.QMainWindow()
-        self.ui = proxyPage.Ui_ProxyWindow()
-        self.ui.setupUi(self.proxyWindow)
-        self.proxyWindow.show()
+    # def to_proxyPage(self):
+    #     self.proxyWindow = QtWidgets.QMainWindow()
+    #     self.ui = proxyPage.Ui_ProxyWindow()
+    #     self.ui.setupUi(self.proxyWindow)
+    #     self.proxyWindow.show()
 
     def get_inputInterface(self):
         return deviceSetup.input_interface

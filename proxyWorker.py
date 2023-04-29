@@ -5,9 +5,6 @@ import socket
 import threading
 from PyQt5.QtCore import QThread, pyqtSignal
 
-from proxy import server_loop
-
-
 class proxyWorker(QThread):
     # finished
     finished = pyqtSignal()

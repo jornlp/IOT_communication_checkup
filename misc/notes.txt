@@ -75,6 +75,22 @@ letsEncrypt
 
 
 
+host (keuze in de tool):
+1) zelf path naar cert file meegeven (PEM)
+2) cert met juiste domeinnaam genereren, self signed
+3) hetzelfde als 2 maar dan signed door een fake CA
+
+
+client (tests):
+1) volledige correct checken
+2) ca store gebruiken
+3) geen verificatie
+4) pinning
+
+
+
+
+
 
 
 

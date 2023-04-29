@@ -79,20 +79,15 @@ class Ui_captureWindow(object):
         captureWindow.setWindowTitle(_translate("Capture Page", "Capture Page"))
         self.start_capture.setText(_translate("captureWindow", "Start capture!"))
         self.stop_capture.setText(_translate("captureWindow", "Stop capture!"))
-        #self.main_screen.setText(_translate("captureWindow", "Main screen"))
 
     def start_packet_capture(self):
         self.capture_thread = CaptureWorker(self.input_interface)
-
-        # update scroll area upon relevant capture
         self.capture_thread.captured.connect(self.update_scroll_area)
-
-        # upon finish end thread
         self.capture_thread.finished.connect(self.capture_thread.quit)
         self.capture_thread.finished.connect(self.capture_thread.deleteLater)
         self.capture_thread.start()
 
-        # Final resets
+        # final resets
         self.start_capture.setEnabled(False)
         self.start_capture.setText("Capturing on %s..." % self.input_interface)
         self.stop_capture.setEnabled(True)
@@ -107,9 +102,6 @@ class Ui_captureWindow(object):
         self.start_capture.setEnabled(True)
         self.write_report()
 
-
-
-
     def update_scroll_area(self, packet_info, packet_dict):
         # create a QLabel widget to hold the packet information
         packet_label = QtWidgets.QPushButton(self.scrollAreaWidgetContents)
@@ -119,12 +111,10 @@ class Ui_captureWindow(object):
         packet_label.setEnabled(False)
         packet_label.setText(packet_info)
 
-        #packet_label.clicked.connect(lambda: self.start_proxy_window(packet_dict))
+        if packet_dict["TL"] == "TCP":
+            packet_label.setEnabled(True)
+            packet_label.clicked.connect(lambda: self.start_proxy_window(packet_dict))
 
-        # elif packet_dict['transport'] == "UDP":
-        #     packet_label.clicked.connect(lambda: self.start_UDP_proxy_window(packet_dict))
-
-        # add the label to the packet layout
         self.packet_scrollArea_layout.addWidget(packet_label)
 
 
@@ -146,6 +136,9 @@ class Ui_captureWindow(object):
         self.ui = reportPage.Ui_ReportWindow()
         self.ui.setupUi(self.reportWindow)
         self.reportWindow.show()
+
+    def start_proxy_window(self, packet_dict):
+        pass
 
 
 
