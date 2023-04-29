@@ -37,4 +37,4 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
 
     server_sock.close()
     client_sock.close()
-    print('Connections closed')
+    print('Communication ended.')

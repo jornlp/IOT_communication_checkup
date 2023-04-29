@@ -39,3 +39,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as sock:
             print(server_data)
             client_sock.sendall(server_data)
             print("Data sent to client.")
+
+
+        client_sock.close()
+        server_sock.close()
+        print('Communication ended.')

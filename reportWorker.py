@@ -38,8 +38,6 @@ class ReportWorker(QThread):
         return certificates
 
     def getRoot(self, allCerts):
-
-
         rootCert = ''
         highest = allCerts[-1].binary_value
         highestPEM = ssl.DER_cert_to_PEM_cert(highest)
@@ -58,6 +56,16 @@ class ReportWorker(QThread):
     def verifyCerts(self, certs, rootCert):
         results = []
 
+        # self signed ontvangen?
+        if (certs[-1].get_issuer() == certs[-1].get_subject()) and (rootCert != ''):
+            # verify self signed certificate certs[-1]
+            test = certs[-1].verify(rootCert.get_pubkey())
+            if test == False:
+                results.append("selfsignedfailed")
+                return results
+            certs.pop(-1)
+
+
         store = OpenSSL.crypto.X509Store()
         try:
             store.add_cert(rootCert)
@@ -74,7 +82,6 @@ class ReportWorker(QThread):
                 results.append(store_ctx.verify_certificate())
             except:
                 results.append("Invalid cert")
-
             store.add_cert(cert)
         return results
 
@@ -131,8 +138,11 @@ class ReportWorker(QThread):
                             if str(item) == "None":
                                 fRes.append("Valid Cert")
                             elif str(item) == "/":
-                                fRes.append("<b>!!Root CA unknown to this device, couldn't verify chain.!!</b>")
+                                fRes.append("<b>!!Root CA unknown to tool, couldn't verify chain.!!</b>")
+                            elif str(item) == "selfsignedfailed":
+                                fRes.append("<b>!!Self signed root not trusted!!</b>")
                             else:
+                                print(item)
                                 fRes.append("<b>!!Mismatch in chain!!</b>")
                         report.cipher_TLSVersion_verified_dictionary[host][2] = fRes
 
@@ -158,7 +168,7 @@ class ReportWorker(QThread):
 
             if protocol == "HTTP" and port != 80:
                 combowarning = "<b>!!odd port for HTTP!!</b>"
-            elif protocol == "TLS" and port != 443:
+            elif protocol == "TLS" and (port != 443 and port != 8443):
                 combowarning = "<b>!!odd port for TLS!!</b>"
             elif protocol == "TCP" and port != 443:
                 combowarning = "<b>!!odd port for TCP!!</b>"
