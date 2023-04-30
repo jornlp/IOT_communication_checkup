@@ -59,7 +59,20 @@ class ReportWorker(QThread):
                     rootCert = file_to_check
         return rootCert
 
+    def getRootX509(self, allCerts):
+        rootCert = ''
+        highestCert = allCerts[-1]
+        for filename in os.listdir(trustedCerDir):
+            if filename.endswith(".pem"):
+                with open("%s%s" % (trustedCerDir, filename), 'rb') as f:
+                    cert = f.read()
+                file_to_check = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)
 
+                print(highestCert.get_issuer(), file_to_check.get_issuer())
+
+                if highestCert.get_issuer() == file_to_check.get_issuer():
+                    rootCert = file_to_check
+        return rootCert
 
 
 
@@ -121,6 +134,7 @@ class ReportWorker(QThread):
             ip = report.stream_dst_ip_dictionary_TCP[stream_nr][3]
 
             counter = 0
+            done = False
 
             #packets afgaan voor elke stream
             for p in report.TCP_capture_dictionary[stream_nr]:
@@ -180,15 +194,28 @@ class ReportWorker(QThread):
 
                         report.stream_dst_ip_dictionary_TCP[stream_nr][4][2] = fRes
 
-                    elif report.stream_dst_ip_dictionary_TCP[stream_nr][4][1] == "TLSv1.3":
+                    elif report.stream_dst_ip_dictionary_TCP[stream_nr][4][1] == "TLSv1.3" and not done:
 
                         # X509 certs
                         allCerts = self.get_certificates(ip, report.stream_dst_ip_dictionary_TCP[stream_nr][0][1])
-                        rootCert = self.getRoot(allCerts)
+                        rootCert = self.getRootX509(allCerts)
+                        res = self.verifyCerts(allCerts, rootCert)
 
+                        fRes = []
 
+                        for item in res:
+                            if str(item) == "None":
+                                fRes.append("Valid Cert")
+                            elif str(item) == "/":
+                                fRes.append("<b>!!Root CA unknown to tool, couldn't verify chain!!</b>")
+                            elif str(item) == "selfsignedfailed":
+                                fRes.append("<b>!!Self signed root not trusted!!</b>")
+                            else:
+                                print(item)
+                                fRes.append("<b>!!Mismatch in chain!!</b>")
 
-
+                        report.stream_dst_ip_dictionary_TCP[stream_nr][4][2] = fRes
+                        done = True
 
 
 
