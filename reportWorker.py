@@ -119,7 +119,8 @@ class ReportWorker(QThread):
                                 version = "unknown"
 
                         cipher = p.tls.handshake_ciphersuite
-                        report.cipher_TLSVersion_verified_dictionary[host] = [cipher, version, ""]
+                        report.cipher_TLSVersion_verified_dictionary[host] = [cipher, version, "couldn't fetch "
+                                                                                               "certificates (TLS1.3)"]
 
                     if "handshake_certificates" in p.tls.field_names:
                         allCerts = p.tls.handshake_certificate.all_fields
@@ -141,6 +142,9 @@ class ReportWorker(QThread):
                                 print(item)
                                 fRes.append("<b>!!Mismatch in chain!!</b>")
                         report.cipher_TLSVersion_verified_dictionary[host][2] = fRes
+
+
+
 
         for key in report.stream_dst_ip_dictionary_TCP.keys():
             # every host once in report_output

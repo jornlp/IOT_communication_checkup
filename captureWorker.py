@@ -43,7 +43,7 @@ class CaptureWorker(QThread):
                             try:
                                 host = str(dns.resolver.resolve(dns.reversename.from_address(ip_dst), "PTR")[0])
                             except dns.resolver.NXDOMAIN:
-                                host = ""
+                                host = ip_dst
 
                             packet_info = packet.highest_layer + " (convo ID: " + UDP_streamNumber + ")" + "\n hostA: " + ip_src \
                                           + "   hostB: " + ip_dst + "\n hostA port: " + src_port + "   hostB port: " + dst_port + "   " + host
@@ -70,7 +70,7 @@ class CaptureWorker(QThread):
                             try:
                                 host = str(dns.resolver.resolve(dns.reversename.from_address(ip_dst), "PTR")[0])
                             except dns.resolver.NXDOMAIN:
-                                host = ""
+                                host = ip_dst
 
                             # TCP_conversation_keys.append(TCP_streamNumber)
 
