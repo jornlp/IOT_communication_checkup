@@ -17,6 +17,8 @@ def get_certificate(host, port):
         conn.do_handshake()
         certs = conn.get_peer_cert_chain()
 
+
+
     except SSL.Error as e:
         print('Error: {0}'.format(str(e)))
         exit(1)

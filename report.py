@@ -2,7 +2,8 @@
 TCP_capture_dictionary = {}
 UDP_capture_dictionary = {}
 
-# nr: host, port, protocol
+
+# streamnr: [host, dst_port, protocol, ip_dst, [cipher, version, []]
 stream_dst_ip_dictionary_TCP = {}
 stream_dst_ip_dictionary_UDP = {}
 
@@ -13,7 +14,12 @@ cipher_TLSVersion_verified_dictionary = {}
 
 host_set = set()
 
-# host: report string
+
+
+# streamnr: report string, host
 host_report_output_normal_TCP = {}
+
+
+# host: report string
 host_report_output_normal_UDP = {}
 host_report_output_tls = {}

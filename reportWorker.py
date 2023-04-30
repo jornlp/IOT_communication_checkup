@@ -13,6 +13,14 @@ import OpenSSL.crypto
 import ssl
 import os
 
+
+from socket import socket
+
+from OpenSSL import SSL, crypto
+
+
+
+
 trustedCerDir = 'trustedCerts/'
 
 Unknown = ""
@@ -51,6 +59,12 @@ class ReportWorker(QThread):
                     rootCert = file_to_check
         return rootCert
 
+
+
+
+
+
+
     def verifyCerts(self, certs, rootCert):
         results = []
 
@@ -81,12 +95,34 @@ class ReportWorker(QThread):
             store.add_cert(cert)
         return results
 
+    def get_certificates(self, host, port):
+        server = socket()
+        context = SSL.Context(SSL.TLSv1_2_METHOD)
+        print('Connecting to {0} to get certificate...'.format(host))
+        conn = SSL.Connection(context, server)
+        certs = []
+
+        try:
+            conn.connect((host, port))
+            conn.do_handshake()
+            certs = conn.get_peer_cert_chain()
+
+        except SSL.Error as e:
+            print('Error: {0}'.format(str(e)))
+            exit(1)
+
+        # server cert on index 0
+        return certs
+
     def run(self):
 
         for stream_nr in report.TCP_capture_dictionary.keys():
             host = report.stream_dst_ip_dictionary_TCP[stream_nr][0]
+            ip = report.stream_dst_ip_dictionary_TCP[stream_nr][3]
+
             counter = 0
 
+            #packets afgaan voor elke stream
             for p in report.TCP_capture_dictionary[stream_nr]:
 
                 try:
@@ -119,8 +155,8 @@ class ReportWorker(QThread):
                                 version = "unknown"
 
                         cipher = p.tls.handshake_ciphersuite
-                        report.cipher_TLSVersion_verified_dictionary[host] = [cipher, version, "couldn't fetch "
-                                                                                               "certificates (TLS1.3)"]
+                        report.stream_dst_ip_dictionary_TCP[stream_nr][4] = [cipher, version, ["couldn't fetch "
+                                                                                               "certificates (TLS1.3)"]]
 
                     if "handshake_certificates" in p.tls.field_names:
                         allCerts = p.tls.handshake_certificate.all_fields
@@ -141,12 +177,25 @@ class ReportWorker(QThread):
                             else:
                                 print(item)
                                 fRes.append("<b>!!Mismatch in chain!!</b>")
-                        report.cipher_TLSVersion_verified_dictionary[host][2] = fRes
+
+                        report.stream_dst_ip_dictionary_TCP[stream_nr][4][2] = fRes
+
+                    elif report.stream_dst_ip_dictionary_TCP[stream_nr][4][1] == "TLSv1.3":
+
+                        # X509 certs
+                        allCerts = self.get_certificates(ip, report.stream_dst_ip_dictionary_TCP[stream_nr][0][1])
+                        rootCert = self.getRoot(allCerts)
+
+
+
 
 
 
 
         for key in report.stream_dst_ip_dictionary_TCP.keys():
+
+            report.host_report_output_normal_TCP[key][0] =
+
             # every host once in report_output
             report.host_report_output_normal_TCP[report.stream_dst_ip_dictionary_TCP[key][0]] = str(
                 "<b>{}</b>".format(report.stream_dst_ip_dictionary_TCP[key][0]) + "<br><br>")
@@ -154,13 +203,7 @@ class ReportWorker(QThread):
             # stream dest can have hosts multiple times
             report.host_set.add(report.stream_dst_ip_dictionary_TCP[key][0])
 
-        for key in report.stream_dst_ip_dictionary_UDP.keys():
-            # every host once in report_output
-            report.host_report_output_normal_UDP[report.stream_dst_ip_dictionary_UDP[key][0]] = str(
-                "<b>{}</b>".format(report.stream_dst_ip_dictionary_UDP[key][0]) + "<br><br>")
 
-            # stream dest can have hosts multiple times
-            report.host_set.add(report.stream_dst_ip_dictionary_UDP[key][0])
 
 
         for stream_nr in report.stream_dst_ip_dictionary_TCP.keys():
@@ -177,6 +220,18 @@ class ReportWorker(QThread):
                 combowarning = "<b>!!odd port for TCP!!</b>"
 
             report.host_report_output_normal_TCP[host] += "stream number: {0}<br>protocol: {1}<br>port: {2}<br>{3}<br>".format(stream_nr, protocol, port, combowarning)
+
+
+
+
+        for key in report.stream_dst_ip_dictionary_UDP.keys():
+            # every host once in report_output
+            report.host_report_output_normal_UDP[report.stream_dst_ip_dictionary_UDP[key][0]] = str(
+                "<b>{}</b>".format(report.stream_dst_ip_dictionary_UDP[key][0]) + "<br><br>")
+
+            # stream dest can have hosts multiple times
+            report.host_set.add(report.stream_dst_ip_dictionary_UDP[key][0])
+
         for stream_nr in report.stream_dst_ip_dictionary_UDP.keys():
 
             host = report.stream_dst_ip_dictionary_UDP[stream_nr][0]
@@ -188,6 +243,11 @@ class ReportWorker(QThread):
                 combowarning = "<b>o!!dd port for DNS!!</b>"
 
             report.host_report_output_normal_UDP[host] += "stream number: {0}<br>protocol: {1}<br>port: {2}<br>{3}<br>".format(stream_nr, protocol, port, combowarning)
+
+
+
+
+
 
         for host in report.cipher_TLSVersion_verified_dictionary.keys():
             actual_host = host.split(" ")[0]

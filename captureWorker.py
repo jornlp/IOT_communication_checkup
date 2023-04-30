@@ -52,7 +52,7 @@ class CaptureWorker(QThread):
                                            "src_port": src_port, "dst_port": dst_port, "TL": "UDP"}
 
                             protocol = packet.highest_layer
-                            report.stream_dst_ip_dictionary_UDP[UDP_streamNumber] = [host, dst_port, protocol]
+                            report.stream_dst_ip_dictionary_UDP[UDP_streamNumber] = [host, dst_port, protocol, ip_dst]
 
                             self.captured.emit(packet_info, packet_dict)
                         else:
@@ -81,7 +81,9 @@ class CaptureWorker(QThread):
                                            "src_port": src_port, "dst_port": dst_port, "TL": "TCP"}
 
                             protocol = packet.highest_layer
-                            report.stream_dst_ip_dictionary_TCP[TCP_streamNumber] = [host, dst_port, protocol]
+
+                            # "" => for potential TLS info
+                            report.stream_dst_ip_dictionary_TCP[TCP_streamNumber] = [host, dst_port, protocol, ip_dst, ""]
 
                             self.captured.emit(packet_info, packet_dict)
 
