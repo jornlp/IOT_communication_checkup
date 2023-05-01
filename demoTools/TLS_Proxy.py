@@ -2,10 +2,10 @@ import socket
 import ssl
 
 context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-context.load_cert_chain('mycertchain.pem', 'server.key')
+context.load_cert_chain('server.pem', 'server.key')
 
 #proxy
-proxy_ip = "127.0.0.1"
+proxy_ip = "172.16.1.1"
 proxy_port = 8443
 
 #endpoint
