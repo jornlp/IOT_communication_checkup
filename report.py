@@ -16,10 +16,6 @@ host_set = set()
 
 
 
-# streamnr: report string, host
+# streamnr: host, report string
 host_report_output_normal_TCP = {}
-
-
-# host: report string
 host_report_output_normal_UDP = {}
-host_report_output_tls = {}

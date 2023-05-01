@@ -74,26 +74,18 @@ class Ui_ReportWindow(object):
             self.label_scrollArea_layout.removeWidget(widgetToRemove)
             widgetToRemove.setParent(None)
 
-        for host in report.host_report_output_normal_TCP:
-            if host == self.comboBox.currentText():
+        for streamnr in report.host_report_output_normal_TCP:
+            if report.host_report_output_normal_TCP[streamnr][0] == self.comboBox.currentText():
                 normal_label = QtWidgets.QLabel(self.scrollAreaWidgetContents)
                 normal_label.setTextFormat(Qt.RichText)
-                normal_label.setText(str(report.host_report_output_normal_TCP[host]))
+                normal_label.setText(str(report.host_report_output_normal_TCP[streamnr][1]))
                 normal_label.setStyleSheet("border: 1px solid black; font-size: 10pt;")
                 self.label_scrollArea_layout.addWidget(normal_label)
 
-        for host in report.host_report_output_normal_UDP:
-            if host == self.comboBox.currentText():
+        for streamnr in report.host_report_output_normal_UDP:
+            if report.host_report_output_normal_UDP[streamnr][0] == self.comboBox.currentText():
                 normal_label = QtWidgets.QLabel(self.scrollAreaWidgetContents)
                 normal_label.setTextFormat(Qt.RichText)
-                normal_label.setText(str(report.host_report_output_normal_UDP[host]))
+                normal_label.setText(str(report.host_report_output_normal_UDP[streamnr][1]))
                 normal_label.setStyleSheet("border: 1px solid black; font-size: 10pt;")
                 self.label_scrollArea_layout.addWidget(normal_label)
-
-        for host in report.host_report_output_tls:
-            if host == self.comboBox.currentText():
-                special_label = QtWidgets.QLabel(self.scrollAreaWidgetContents)
-                special_label.setTextFormat(Qt.RichText)
-                special_label.setText(str(report.host_report_output_tls[host]))
-                special_label.setStyleSheet("border: 1px solid black; font-size: 10pt;")
-                self.label_scrollArea_layout.addWidget(special_label)
