@@ -64,8 +64,6 @@ class ReportWorker(QThread):
                     cert = f.read()
                 file_to_check = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)
 
-                print(highestCert.get_issuer(), file_to_check.get_issuer())
-
                 if highestCert.get_issuer() == file_to_check.get_issuer():
                     rootCert = file_to_check
         return rootCert
@@ -75,12 +73,21 @@ class ReportWorker(QThread):
 
         # self signed ontvangen?
         if (certs[-1].get_issuer() == certs[-1].get_subject()) and (rootCert != ''):
-            # verify self signed certificate certs[-1]
-            test = certs[-1].verify(rootCert.get_pubkey())
-            if test == False:
+
+            self_signed_store = crypto.X509Store()
+            self_signed_store.add_cert(rootCert)
+            self_signed_context = crypto.X509StoreContext(self_signed_store, certs[-1])
+
+            try:
+                test = self_signed_context.verify_certificate()
+                certs.pop(-1)
+                results.append(test)
+                if len(certs) == 0:
+                    return results
+            except crypto.X509StoreContextError:
                 results.append("selfsignedfailed")
                 return results
-            certs.pop(-1)
+
 
         store = OpenSSL.crypto.X509Store()
         try:
@@ -90,7 +97,6 @@ class ReportWorker(QThread):
             return results
 
         for cert in reversed(list((certs))):
-            # print(cert.get_issuer().CN)
             store_ctx = OpenSSL.crypto.X509StoreContext(store, cert)
 
             try:
@@ -103,12 +109,12 @@ class ReportWorker(QThread):
     def get_certificates(self, host, port):
         server = socket()
         context = SSL.Context(SSL.TLSv1_2_METHOD)
-        print('Connecting to {0} to get certificate...'.format(host))
+        print('Connecting to {0} to get certificates...'.format(host))
         conn = SSL.Connection(context, server)
         certs = []
 
         try:
-            conn.connect((host, port))
+            conn.connect((host, int(port)))
             conn.do_handshake()
             certs = conn.get_peer_cert_chain()
 
@@ -181,7 +187,6 @@ class ReportWorker(QThread):
                             elif str(item) == "selfsignedfailed":
                                 fRes.append("<b>!!Self signed root not trusted!!</b>")
                             else:
-                                print(item)
                                 fRes.append("<b>!!Mismatch in chain!!</b>")
 
                         report.stream_dst_ip_dictionary_TCP[stream_nr][4][2] = fRes
@@ -211,7 +216,6 @@ class ReportWorker(QThread):
                                 elif str(item) == "selfsignedfailed":
                                     fRes.append("<b>!!Self signed root not trusted!!</b>")
                                 else:
-                                    print(item)
                                     fRes.append("<b>!!Mismatch in chain!!</b>")
 
                         report.stream_dst_ip_dictionary_TCP[stream_nr][4][2] = fRes
@@ -223,7 +227,6 @@ class ReportWorker(QThread):
             protocol = report.stream_dst_ip_dictionary_TCP[stream_nr][2]
             ip = report.stream_dst_ip_dictionary_TCP[stream_nr][3]
             tls_info = report.stream_dst_ip_dictionary_TCP[stream_nr][4][1]
-
 
             report.host_report_output_normal_TCP[stream_nr] = [host, "output"]
 
@@ -277,7 +280,7 @@ class ReportWorker(QThread):
 
             report.host_report_output_normal_UDP[stream_nr][1] = "ip: {0}<br>stream number: {1}<br>protocol: " \
                                                                  "{2}<br>port: {3}<br>{4}<br>".format(ip, stream_nr,
-                                                                                                     protocol, port,
-                                                                                                     combowarning)
+                                                                                                      protocol, port,
+                                                                                                      combowarning)
 
         self.finished.emit()
