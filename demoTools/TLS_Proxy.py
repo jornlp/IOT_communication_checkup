@@ -6,7 +6,7 @@ context.load_cert_chain('server.pem', 'server.key')
 
 #proxy
 proxy_ip = "172.16.1.1"
-proxy_port = 8443
+proxy_port = 8081
 
 #endpoint
 server_host = "93.184.216.34"

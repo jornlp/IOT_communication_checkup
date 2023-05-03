@@ -17,8 +17,6 @@ def get_certificate(host, port):
         conn.do_handshake()
         certs = conn.get_peer_cert_chain()
 
-
-
     except SSL.Error as e:
         print('Error: {0}'.format(str(e)))
         exit(1)
@@ -38,4 +36,4 @@ def get_certificate(host, port):
         exit(1)
 
 
-get_certificate("23.201.208.117", 443)
+get_certificate("server-13-225-239-104.bru50.r.cloudfront.net.", 443)
