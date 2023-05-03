@@ -8,7 +8,7 @@ import report
 
 class CaptureWorker(QThread):
     # progress
-    captured = pyqtSignal(str, dict)
+    captured = pyqtSignal(str, dict, int, bool)
 
     # finished
     finished = pyqtSignal()
@@ -34,7 +34,7 @@ class CaptureWorker(QThread):
 
                         src_port = packet.udp.srcport
                         dst_port = packet.udp.dstport
-                        UDP_streamNumber = packet.udp.stream
+                        UDP_streamNumber = int(packet.udp.stream)
 
                         if UDP_streamNumber not in report.UDP_capture_dictionary:
                             report.UDP_capture_dictionary[UDP_streamNumber] = []
@@ -58,7 +58,7 @@ class CaptureWorker(QThread):
 
 
 
-                            packet_info = packet.highest_layer + " (convo ID: " + UDP_streamNumber + ")" + "\n hostA: " + ip_src \
+                            packet_info = packet.highest_layer + " (convo ID: " + str(UDP_streamNumber) + ")" + "\n hostA: " + ip_src \
                                           + "   hostB: " + ip_dst + "\n hostA port: " + src_port + "   hostB port: " + dst_port + "   " + host
 
                             packet_dict = {"transport": str(packet.highest_layer), "src_ip": ip_src, "dst_ip": ip_dst,
@@ -67,14 +67,14 @@ class CaptureWorker(QThread):
                             protocol = packet.highest_layer
                             report.stream_dst_ip_dictionary_UDP[UDP_streamNumber] = [host, server_port, protocol, server_ip]
 
-                            self.captured.emit(packet_info, packet_dict)
+                            self.captured.emit(packet_info, packet_dict, UDP_streamNumber, False)
                         else:
                             report.UDP_capture_dictionary[UDP_streamNumber].append(packet)
 
                     if packet.transport_layer == "TCP":
                         src_port = packet.tcp.srcport
                         dst_port = packet.tcp.dstport
-                        TCP_streamNumber = packet.tcp.stream
+                        TCP_streamNumber = int(packet.tcp.stream)
 
                         if TCP_streamNumber not in report.TCP_capture_dictionary:
 
@@ -101,7 +101,7 @@ class CaptureWorker(QThread):
                                 except dns.resolver.NXDOMAIN:
                                     host = ip_dst
 
-                            packet_info = packet.highest_layer + " (convo ID: " + TCP_streamNumber + ")" + "\n hostA: " + ip_src + "   hostB: " + ip_dst + \
+                            packet_info = packet.highest_layer + " (convo ID: " + str(TCP_streamNumber) + ")" + "\n hostA: " + ip_src + "   hostB: " + ip_dst + \
                                           "\n hostA port: " + src_port + "   hostB port: " + dst_port + "   " + host
 
                             packet_dict = {"transport": str(packet.highest_layer), "src_ip": ip_src, "dst_ip": ip_dst,
@@ -113,7 +113,7 @@ class CaptureWorker(QThread):
                             report.stream_dst_ip_dictionary_TCP[TCP_streamNumber] = [host, server_port, protocol, server_ip,
                                                                                      ["decoy", "decoy", []]]
 
-                            self.captured.emit(packet_info, packet_dict)
+                            self.captured.emit(packet_info, packet_dict, TCP_streamNumber, True)
 
                         else:
                             report.TCP_capture_dictionary[TCP_streamNumber].append(packet)

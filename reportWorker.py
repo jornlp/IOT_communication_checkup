@@ -128,6 +128,7 @@ class ReportWorker(QThread):
     def run(self):
 
         for stream_nr in report.TCP_capture_dictionary.keys():
+
             host = report.stream_dst_ip_dictionary_TCP[stream_nr][0]
             ip = report.stream_dst_ip_dictionary_TCP[stream_nr][3]
 

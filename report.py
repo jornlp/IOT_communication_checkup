@@ -19,3 +19,7 @@ host_set = set()
 # streamnr: host, report string
 host_report_output_normal_TCP = {}
 host_report_output_normal_UDP = {}
+
+
+
+stream_button_dictionary = {}
