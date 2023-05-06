@@ -18,6 +18,8 @@ import http_ProxyPage
 
 
 class Ui_captureWindow(object):
+    def __init__(self):
+        super().__init__()
     def setupUi(self, CaptureWindow, input_interface):
         self.input_interface = input_interface
 

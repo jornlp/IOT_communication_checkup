@@ -1,5 +1,3 @@
-import sys
-
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 
@@ -9,9 +7,17 @@ from confWorker import ConfWorker
 from httpWorker import HTTPWorker
 
 import re
-class Ui_httpWindow(object):
-    def setupUi(self, HTTPWindow, dict_entry):
 
+
+class Ui_httpWindow(object):
+    def __init__(self):
+        super().__init__()
+
+    # def closeEvent(self, event):
+    #     deviceSetup.clear_http_rules(self.ip, self.port)
+    #     event.accept()
+
+    def setupUi(self, HTTPWindow, dict_entry):
         self.dict_entry = dict_entry
         self.ip = dict_entry[3]
         self.port = dict_entry[1]
@@ -72,7 +78,6 @@ class Ui_httpWindow(object):
 
         self.verticalLayout.addWidget(self.stop_proxy)
 
-
         HTTPWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(HTTPWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1075, 22))
@@ -89,13 +94,10 @@ class Ui_httpWindow(object):
         _translate = QtCore.QCoreApplication.translate
         HTTPWindow.setWindowTitle(_translate("MITM Page", "MITM Page"))
 
-
         self.start_proxy.setText(_translate("HTTPWindow", "Start attack attempt! DEVICE MUST BE CONNECTED FIRST"))
         self.stop_proxy.setText(_translate("HTTPWindow", "Stop attack attempt!"))
 
-
     def configure_iptables_http(self):
-
         self.start_proxy.setEnabled(False)
         self.stop_proxy.setEnabled(True)
         self.conf_thread = ConfWorker(self.ip, self.port, True)
@@ -104,9 +106,7 @@ class Ui_httpWindow(object):
         self.conf_thread.finished.connect(self.conf_thread.deleteLater)
         self.conf_thread.start()
 
-
     def start_attack(self):
-
         # thread om proxy te draaien
         self.http_thread = HTTPWorker(self.ip, self.port)
         self.http_thread.captured.connect(self.update_scroll_area)
@@ -117,7 +117,6 @@ class Ui_httpWindow(object):
         self.http_thread.start()
 
         self.start_proxy.setText("Performing attack on {0}:{1}".format(self.ip, self.port))
-
 
     def stop_thread(self):
         # rules verwijderen uit iptables

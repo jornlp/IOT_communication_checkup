@@ -15,6 +15,8 @@ import report
 
 
 class Ui_ReportWindow(object):
+    def __init__(self):
+        super().__init__()
     def setupUi(self, reportWindow):
         reportWindow.setObjectName("MainWindow")
         reportWindow.resize(1184, 878)
