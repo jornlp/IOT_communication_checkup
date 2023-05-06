@@ -13,6 +13,7 @@ import report
 import reportPage
 from captureWorker import CaptureWorker
 from reportWorker import ReportWorker
+from buttonWorker import ButtonWorker
 
 
 class Ui_captureWindow(object):
@@ -105,7 +106,6 @@ class Ui_captureWindow(object):
         self.write_report()
 
     def update_scroll_area(self, packet_info, packet_dict, stream_nr, tcp):
-
         packet_button = QtWidgets.QPushButton(self.scrollAreaWidgetContents)
 
         packet_button.setEnabled(False)
@@ -129,25 +129,28 @@ class Ui_captureWindow(object):
         self.report_thread.start()
 
     def open_report(self):
-
-
-        # TODO DEADLOCK VERMIJDEN!
-        for stream_nr in report.stream_button_dictionary.keys():
-            print(stream_nr)
-            sys.stdout.flush()
-            if report.stream_dst_ip_dictionary_TCP[stream_nr][2] == "HTTP" or \
-                    report.stream_dst_ip_dictionary_TCP[stream_nr][2] == "TLS":
-                report.stream_button_dictionary[stream_nr].setEnabled(True)
-
-                # TODO CONNECT WITH STARTPROXYWINDOW // NODIGE DATA MEEGEVEN MET CONNECT EN DAN AFH VAN HTTP OF TLS
-                #  EEN ANDERE PROXY OPSTARTEN
-
-
         # nodige data uit report.py halen
         self.reportWindow = QtWidgets.QMainWindow()
         self.ui = reportPage.Ui_ReportWindow()
         self.ui.setupUi(self.reportWindow)
-        self.reportWindow.show()
 
-    def start_proxy_window(self, packet_dict):
-        pass
+        self.button_thread = ButtonWorker()
+
+        # update scroll area upon relevant capture
+        self.button_thread.finished.connect(self.reportWindow.show)
+
+        # upon finish end thread
+        self.button_thread.finished.connect(self.button_thread.quit)
+        self.button_thread.finished.connect(self.button_thread.deleteLater)
+        self.button_thread.start()
+
+    def start_proxy_window(self, dict_entry):
+        if dict_entry[2] == "HTTP":
+            # open page HTTP
+
+        elif dict_entry[2] == "TLS":
+            # open page TLS
+
+
+
+

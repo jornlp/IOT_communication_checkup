@@ -92,12 +92,6 @@ class Ui_MainWindow(object):
         deviceSetup.configure_device()
         self.to_capturePage()
 
-    # def to_proxyPage(self):
-    #     self.proxyWindow = QtWidgets.QMainWindow()
-    #     self.ui = proxyPage.Ui_ProxyWindow()
-    #     self.ui.setupUi(self.proxyWindow)
-    #     self.proxyWindow.show()
-
     def get_inputInterface(self):
         return deviceSetup.input_interface
 
