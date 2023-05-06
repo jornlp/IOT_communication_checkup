@@ -1,6 +1,6 @@
 import dns.resolver
 import pyshark
-from PyQt5.QtCore import QThread, pyqtSignal, QObject
+from PyQt5.QtCore import QThread, pyqtSignal
 import netifaces as ni
 
 import report

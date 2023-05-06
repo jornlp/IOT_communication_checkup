@@ -41,6 +41,7 @@ class Ui_MainWindow(object):
         self.gridLayout = QtWidgets.QGridLayout(self.layoutWidget)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.gridLayout.setObjectName("gridLayout")
+
         self.label = QtWidgets.QLabel(self.layoutWidget)
         self.label.setAlignment(QtCore.Qt.AlignCenter)
         self.label.setObjectName("label")

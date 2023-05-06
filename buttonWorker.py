@@ -18,10 +18,6 @@ class ButtonWorker(QThread):
                     dict_entry[2] == "TLS":
                 button = report.stream_button_dictionary[stream_nr]
                 button.setEnabled(True)
-                button.connect(lambda: capturePage.Ui_captureWindow.start_proxy_window(dict_entry))
-
-
-                # TODO CONNECT WITH STARTPROXYWINDOW // NODIGE DATA MEEGEVEN MET CONNECT EN DAN AFH VAN HTTP OF TLS
-                #  EEN ANDERE PROXY OPSTARTEN
+                button.clicked.connect(lambda: capturePage.Ui_captureWindow.start_proxy_window(None, dict_entry))
 
         self.finished.emit()

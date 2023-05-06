@@ -2,8 +2,6 @@ import subprocess
 import atexit
 import sys
 
-import proxyWorker
-
 global input_interface
 global output_interface
 global packet_dict
@@ -107,44 +105,19 @@ def restore_state(inputI, outputI):
     print("Exited successfully.")
 
 
-# iptables -t nat -A PREROUTING -p <protocol> -s <source IP> --sport
-# <source port> -d <destination IP> --dport <destination port> -j DNAT --to-destination 127.0.0.1:8080
-def configure_proxy(src_port, dst_port, src_ip, dst_ip):
-    atexit.register(remove_proxy_iptables, src_port, dst_port, src_ip, dst_ip)
-
-    subnet_remote = ".".join(dst_ip.split(".")[:-1]) + ".0/16"
-
-    subnet_source = ".".join(src_ip.split(".")[:-1]) + ".0/16"
-
-    print("setup", subnet_remote)
-    print("setup", subnet_source)
-
-    iptables_command = ["sudo", "iptables", "-t", "nat", "-A", "PREROUTING", "-i", input_interface, "-p", "tcp", "-j",
-                        "REDIRECT", "--to-port", "8080"]
-    subprocess.call(iptables_command)
 
 
-    print("proxy setup")
 
-    sys.stdout.flush()
+def configure_http(ip, port):
+    atexit.register(clear_http_rules, ip, port)
 
-    subprocess.call(['sudo', 'iptables', '-S'])
+    subprocess.call(["sudo", "iptables", "-t", "nat", "-A", "PREROUTING", "-i", input_interface,
+                     "-p", "tcp", "-d", ip, "--dport", port, "-j", "REDIRECT", "--to-port", "8080"])
 
-    # sudo iptables -t nat -L -n
-    subprocess.call(["sudo", "iptables", "-t", "nat", "-L", "-n"])
+def clear_http_rules(ip, port):
+    subprocess.call(["sudo", "iptables", "-t", "nat", "-D", "PREROUTING", "-i", input_interface,
+                     "-p", "tcp", "-d", ip, "--dport", port, "-j", "REDIRECT", "--to-port", "8080"])
 
 
-def remove_proxy_iptables(src_port, dst_port, src_ip, dst_ip):
-    subnet_remote = ".".join(dst_ip.split(".")[:-1]) + ".0/16"
-    subnet_source = ".".join(src_ip.split(".")[:-1]) + ".0/16"
-
-    print("proxy remove")
-    print("remove", subnet_remote)
-    print("remove", subnet_source)
-    sys.stdout.flush()
-
-    iptables_command = ["sudo", "iptables", "-t", "nat", "-D", "PREROUTING", "-i", input_interface, "-p", "tcp", "-j",
-                        "REDIRECT", "--to-port", "8080"]
-    subprocess.call(iptables_command)
 
 
