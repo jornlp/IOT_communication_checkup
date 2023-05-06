@@ -14,6 +14,7 @@ import reportPage
 from captureWorker import CaptureWorker
 from reportWorker import ReportWorker
 from buttonWorker import ButtonWorker
+import http_ProxyPage
 
 
 class Ui_captureWindow(object):
@@ -146,10 +147,13 @@ class Ui_captureWindow(object):
 
     def start_proxy_window(self, dict_entry):
         if dict_entry[2] == "HTTP":
-            # open page HTTP
+            self.httpWindow = QtWidgets.QMainWindow()
+            self.ui = http_ProxyPage.Ui_httpWindow()
+            self.ui.setupUi(self.httpWindow, dict_entry)
+            self.httpWindow.show()
 
         elif dict_entry[2] == "TLS":
-            # open page TLS
+            pass
 
 
 

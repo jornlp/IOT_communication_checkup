@@ -143,5 +143,7 @@ class Ui_httpWindow(object):
         self.start_proxy.setText("Start attack! (reconnect device first)")
         self.start_proxy.setEnabled(True)
 
-    def update_scroll_area(self, packet_info, packet_dict, stream_nr, tcp):
-        pass
+    def update_scroll_area(self, side, data):
+        intercept_label = QtWidgets.QPushButton(self.scrollAreaWidgetContents)
+        intercept_label.setText("<b>{0}</b><br>{1}".format(side, data))
+        self.packet_scrollArea_layout.addWidget(intercept_label)

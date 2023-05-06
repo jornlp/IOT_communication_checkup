@@ -36,25 +36,36 @@ class HTTPWorker(QThread):
             print("Connected to server {}:{}".format(self.ip, self.port))
             sys.stdout.flush()
 
+            client_sock.settimeout(0.2)
+            server_sock.settimeout(0.2)
+
             while True:
-                client_data = client_sock.recv(4096)
-                if not client_data:
-                    break
+                try:
+                    client_data = client_sock.recv(4096)
+                    if not client_data:
+                        break
+                    print(client_data)
+
+                    server_sock.sendall(client_data)
+                    self.captured.emit("client", client_data)
+
+                    print("Data sent to server.")
+                except:
+                    pass
 
 
-                print(client_data)
+                try:
+                    server_data = server_sock.recv(4096)
+                    if not server_data:
+                        break
+                    print(server_data)
+                    client_sock.sendall(server_data)
 
+                    self.captured.emit("server", server_data)
 
-                server_sock.sendall(client_data)
-                print("Data sent to server.")
-
-                server_data = server_sock.recv(4096)
-                if not server_data:
-                    break
-                print(server_data)
-                client_sock.sendall(server_data)
-                print("Data sent to client.")
-                sys.stdout.flush()
+                    print("Data sent to client.")
+                except:
+                    pass
 
             server_sock.close()
             client_sock.close()
