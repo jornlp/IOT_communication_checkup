@@ -112,11 +112,11 @@ def configure_http(ip, port):
     atexit.register(clear_http_rules, ip, port)
 
     subprocess.call(["sudo", "iptables", "-t", "nat", "-A", "PREROUTING", "-i", input_interface,
-                     "-p", "tcp", "-d", ip, "--dport", port, "-j", "REDIRECT", "--to-port", "8080"])
+                     "-p", "tcp", "-d", ip, "--dport", str(port), "-j", "REDIRECT", "--to-port", "8080"])
 
 def clear_http_rules(ip, port):
     subprocess.call(["sudo", "iptables", "-t", "nat", "-D", "PREROUTING", "-i", input_interface,
-                     "-p", "tcp", "-d", ip, "--dport", port, "-j", "REDIRECT", "--to-port", "8080"])
+                     "-p", "tcp", "-d", ip, "--dport", str(port), "-j", "REDIRECT", "--to-port", "8080"])
 
 
 

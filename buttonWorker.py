@@ -7,6 +7,7 @@ import capturePage
 class ButtonWorker(QThread):
     # finished
     finished = pyqtSignal()
+    hit = pyqtSignal(int, list)
 
     def __init__(self):
         super().__init__()
@@ -16,8 +17,6 @@ class ButtonWorker(QThread):
             dict_entry = report.stream_dst_ip_dictionary_TCP[stream_nr]
             if dict_entry[2] == "HTTP" or \
                     dict_entry[2] == "TLS":
-                button = report.stream_button_dictionary[stream_nr]
-                button.setEnabled(True)
-                button.clicked.connect(lambda: capturePage.Ui_captureWindow.start_proxy_window(None, dict_entry))
+                self.hit.emit(stream_nr, dict_entry)
 
         self.finished.emit()

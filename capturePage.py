@@ -137,6 +137,8 @@ class Ui_captureWindow(object):
 
         self.button_thread = ButtonWorker()
 
+        self.button_thread.hit.connect(self.add_function)
+
         # update scroll area upon relevant capture
         self.button_thread.finished.connect(self.reportWindow.show)
 
@@ -144,6 +146,11 @@ class Ui_captureWindow(object):
         self.button_thread.finished.connect(self.button_thread.quit)
         self.button_thread.finished.connect(self.button_thread.deleteLater)
         self.button_thread.start()
+
+    def add_function(self, stream_nr, dict_entry):
+        button = report.stream_button_dictionary[stream_nr]
+        button.clicked.connect(lambda: self.start_proxy_window(dict_entry))
+        button.setEnabled(True)
 
     def start_proxy_window(self, dict_entry):
         if dict_entry[2] == "HTTP":
@@ -154,7 +161,3 @@ class Ui_captureWindow(object):
 
         elif dict_entry[2] == "TLS":
             pass
-
-
-
-

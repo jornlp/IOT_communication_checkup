@@ -224,7 +224,7 @@ class ReportWorker(QThread):
 
         for stream_nr in report.stream_dst_ip_dictionary_TCP.keys():
             host = report.stream_dst_ip_dictionary_TCP[stream_nr][0]
-            port = int(report.stream_dst_ip_dictionary_TCP[stream_nr][1])
+            port = report.stream_dst_ip_dictionary_TCP[stream_nr][1]
             protocol = report.stream_dst_ip_dictionary_TCP[stream_nr][2]
             ip = report.stream_dst_ip_dictionary_TCP[stream_nr][3]
             tls_info = report.stream_dst_ip_dictionary_TCP[stream_nr][4][1]
@@ -267,7 +267,7 @@ class ReportWorker(QThread):
 
         for stream_nr in report.stream_dst_ip_dictionary_UDP.keys():
             host = report.stream_dst_ip_dictionary_UDP[stream_nr][0]
-            port = int(report.stream_dst_ip_dictionary_UDP[stream_nr][1])
+            port = report.stream_dst_ip_dictionary_UDP[stream_nr][1]
             protocol = report.stream_dst_ip_dictionary_UDP[stream_nr][2]
             ip = report.stream_dst_ip_dictionary_UDP[stream_nr][3]
 

@@ -5,9 +5,8 @@ import socket
 import sys
 
 class HTTPWorker(QThread):
-    # finished
     finished = pyqtSignal()
-    captured = pyqtSignal()
+    captured = pyqtSignal(str, str)
 
     def __init__(self, ip, port):
         super().__init__()
@@ -47,7 +46,7 @@ class HTTPWorker(QThread):
                     print(client_data)
 
                     server_sock.sendall(client_data)
-                    self.captured.emit("client", client_data)
+                    self.captured.emit("client", str(client_data))
 
                     print("Data sent to server.")
                 except:
@@ -61,7 +60,7 @@ class HTTPWorker(QThread):
                     print(server_data)
                     client_sock.sendall(server_data)
 
-                    self.captured.emit("server", server_data)
+                    self.captured.emit("server", str(server_data))
 
                     print("Data sent to client.")
                 except:
@@ -70,3 +69,4 @@ class HTTPWorker(QThread):
             server_sock.close()
             client_sock.close()
             print('Communication ended.')
+            self.finished.emit()

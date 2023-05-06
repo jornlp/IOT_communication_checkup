@@ -60,6 +60,7 @@ class Ui_ReportWindow(object):
         self.statusbar.setObjectName("statusbar")
         reportWindow.setStatusBar(self.statusbar)
 
+        self.add_scaninfo_from_host()
         self.retranslateUi(reportWindow)
         QtCore.QMetaObject.connectSlotsByName(reportWindow)
 
