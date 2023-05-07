@@ -1,3 +1,5 @@
+import sys
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 
@@ -8,27 +10,25 @@ from httpWorker import HTTPWorker
 
 import re
 
+from tlsWorker import TLSWorker
 
-class Ui_httpWindow(object):
+
+class Ui_tlsWindow(object):
     def __init__(self):
         super().__init__()
 
-    # def closeEvent(self, event):
-    #     deviceSetup.clear_http_rules(self.ip, self.port)
-    #     event.accept()
-
-    def setupUi(self, HTTPWindow, dict_entry):
+    def setupUi(self, TLSWindow, dict_entry):
         self.dict_entry = dict_entry
         self.ip = dict_entry[3]
         self.port = dict_entry[1]
 
-        HTTPWindow.setObjectName("MainWindow")
-        HTTPWindow.resize(1075, 882)
+        TLSWindow.setObjectName("MainWindow")
+        TLSWindow.resize(1075, 882)
         font = QtGui.QFont()
         font.setBold(False)
         font.setWeight(50)
-        HTTPWindow.setFont(font)
-        self.centralwidget = QtWidgets.QWidget(HTTPWindow)
+        TLSWindow.setFont(font)
+        self.centralwidget = QtWidgets.QWidget(TLSWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.widget = QtWidgets.QWidget(self.centralwidget)
         self.widget.setGeometry(QtCore.QRect(70, 30, 941, 781))
@@ -41,8 +41,14 @@ class Ui_httpWindow(object):
         self.info = QtWidgets.QLabel(self.widget)
         self.info.setAlignment(QtCore.Qt.AlignCenter)
 
-        self.info.setText("HTTP MITM attempt on: {0}:{1}".format(self.ip, self.port))
+        self.info.setText("TLS MITM attempt on: {0}:{1}".format(self.ip, self.port))
         self.verticalLayout.addWidget(self.info)
+
+        self.comboBox_method = QtWidgets.QComboBox(self.widget)
+        self.comboBox_method.setObjectName("comboBox_inputInterface")
+        options = ["self signed", "server certificate copy", "full chain copy"]
+        self.comboBox_method.addItems(options)
+        self.verticalLayout.addWidget(self.comboBox_method)
 
         self.scroll_area = QtWidgets.QScrollArea(self.widget)
         self.scroll_area.setWidgetResizable(True)
@@ -61,8 +67,7 @@ class Ui_httpWindow(object):
         font.setWeight(75)
         self.start_proxy.setFont(font)
         self.start_proxy.setObjectName("start_proxy")
-
-        self.start_proxy.clicked.connect(self.configure_iptables_http)
+        self.start_proxy.clicked.connect(self.configure_iptables_tls)
 
         self.verticalLayout.addWidget(self.start_proxy)
 
@@ -78,49 +83,51 @@ class Ui_httpWindow(object):
 
         self.verticalLayout.addWidget(self.stop_proxy)
 
-        HTTPWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(HTTPWindow)
+        TLSWindow.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(TLSWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1075, 22))
         self.menubar.setObjectName("menubar")
-        HTTPWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(HTTPWindow)
+        TLSWindow.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(TLSWindow)
         self.statusbar.setObjectName("statusbar")
-        HTTPWindow.setStatusBar(self.statusbar)
+        TLSWindow.setStatusBar(self.statusbar)
 
-        self.retranslateUi(HTTPWindow)
-        QtCore.QMetaObject.connectSlotsByName(HTTPWindow)
+        self.retranslateUi(TLSWindow)
+        QtCore.QMetaObject.connectSlotsByName(TLSWindow)
 
-    def retranslateUi(self, HTTPWindow):
+    def retranslateUi(self, TLSWindow):
         _translate = QtCore.QCoreApplication.translate
-        HTTPWindow.setWindowTitle(_translate("MITM Page", "MITM Page"))
+        TLSWindow.setWindowTitle(_translate("MITM Page", "MITM Page"))
 
         self.start_proxy.setText(_translate("HTTPWindow", "Start attack attempt! DEVICE MUST BE CONNECTED FIRST"))
         self.stop_proxy.setText(_translate("HTTPWindow", "Stop attack attempt!"))
 
-    def configure_iptables_http(self):
+    def configure_iptables_tls(self):
         self.start_proxy.setEnabled(False)
         self.stop_proxy.setEnabled(True)
-        self.conf_thread = ConfWorker(self.ip, self.port, True, "8080")
+        self.conf_thread = ConfWorker(self.ip, self.port, True, "8081")
         self.conf_thread.finished.connect(self.start_attack)
         self.conf_thread.finished.connect(self.conf_thread.quit)
         self.conf_thread.finished.connect(self.conf_thread.deleteLater)
         self.conf_thread.start()
 
     def start_attack(self):
+
         # thread om proxy te draaien
-        self.http_thread = HTTPWorker(self.ip, self.port)
-        self.http_thread.captured.connect(self.update_scroll_area)
-        self.http_thread.finished.connect(self.http_thread.quit)
-        self.http_thread.finished.connect(self.http_thread.deleteLater)
-        self.http_thread.finished.connect(lambda: self.stop_proxy.setEnabled(False))
-        self.http_thread.finished.connect(lambda: self.start_proxy.setEnabled(True))
-        self.http_thread.start()
+        self.tls_thread = TLSWorker(self.ip, self.port)
+        self.tls_thread.captured.connect(self.update_scroll_area)
+        self.tls_thread.finished.connect(self.tls_thread.quit)
+        self.tls_thread.finished.connect(self.tls_thread.deleteLater)
+        self.tls_thread.finished.connect(lambda: self.stop_proxy.setEnabled(False))
+        self.tls_thread.finished.connect(lambda: self.start_proxy.setEnabled(True))
+        self.tls_thread.start()
 
         self.start_proxy.setText("Performing attack on {0}:{1}".format(self.ip, self.port))
 
+
     def stop_thread(self):
         # rules verwijderen uit iptables
-        self.conf_thread = ConfWorker(self.ip, self.port, False, "8080")
+        self.conf_thread = ConfWorker(self.ip, self.port, False, "8081")
         self.conf_thread.finished.connect(self.conf_thread.quit)
         self.conf_thread.finished.connect(self.conf_thread.deleteLater)
         self.conf_thread.start()
@@ -131,7 +138,7 @@ class Ui_httpWindow(object):
         self.button_thread.finished.connect(self.button_thread.deleteLater)
         self.button_thread.start()
 
-        self.http_thread.terminate()
+        self.tls_thread.terminate()
         self.stop_proxy.setEnabled(False)
         self.start_proxy.setText("Start attack! (reconnect device first)")
         self.start_proxy.setEnabled(True)

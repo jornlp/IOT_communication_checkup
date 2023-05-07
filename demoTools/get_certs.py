@@ -2,6 +2,7 @@ import sys
 from socket import socket
 
 from OpenSSL import SSL, crypto
+from cryptography.hazmat.primitives import serialization
 
 
 # https://www.codeproject.com/Tips/1278114/Python-3-How-to-Download-View-and-Save-Certificate
@@ -36,4 +37,4 @@ def get_certificate(host, port):
         exit(1)
 
 
-get_certificate("server-13-225-239-104.bru50.r.cloudfront.net.", 443)
+get_certificate("93.184.216.34", 443)

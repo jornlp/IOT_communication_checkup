@@ -7,16 +7,17 @@ class ConfWorker(QThread):
 
     finished = pyqtSignal()
 
-    def __init__(self, ip, port, add):
+    def __init__(self, ip, port, add, listening_port):
         self.add = add
         self.ip = ip
         self.port = port
+        self.listening_port = listening_port
         super().__init__()
 
     def run(self):
         if self.add:
-            deviceSetup.configure_http(self.ip, self.port)
+            deviceSetup.configure_proxy(self.ip, self.port, self.listening_port)
             self.finished.emit()
         else:
-            deviceSetup.clear_http_rules(self.ip, self.port)
+            deviceSetup.clear_proxy_rules(self.ip, self.port, self.listening_port)
             self.finished.emit()

@@ -2,8 +2,6 @@ from PyQt5.QtCore import QThread, pyqtSignal
 
 import report
 import sys
-import capturePage
-
 class ButtonWorker(QThread):
     # finished
     finished = pyqtSignal()

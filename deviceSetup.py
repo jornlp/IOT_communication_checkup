@@ -102,21 +102,23 @@ def restore_state(inputI, outputI):
     subprocess.call(["sudo", "systemctl", "enable", "systemd-resolved"])
     subprocess.call(["sudo", "systemctl", "start", "systemd-resolved"])
 
+    subprocess.call(["sudo", "fuser", "-k", "8080/tcp"])
+    subprocess.call(["sudo", "fuser", "-k", "8081/tcp"])
+
     print("Exited successfully.")
 
-
-
-
-
-def configure_http(ip, port):
-    atexit.register(clear_http_rules, ip, port)
+def configure_proxy(ip, port, listening_port):
+    atexit.register(clear_proxy_rules, ip, port, listening_port)
 
     subprocess.call(["sudo", "iptables", "-t", "nat", "-A", "PREROUTING", "-i", input_interface,
-                     "-p", "tcp", "-d", ip, "--dport", str(port), "-j", "REDIRECT", "--to-port", "8080"])
+                     "-p", "tcp", "-d", ip, "--dport", str(port), "-j", "REDIRECT", "--to-port", listening_port])
 
-def clear_http_rules(ip, port):
+def clear_proxy_rules(ip, port, listening_port):
+
+    #subprocess.call(["sudo", "fuser", "-k", "{}/tcp".format(listening_port)])
+
     subprocess.call(["sudo", "iptables", "-t", "nat", "-D", "PREROUTING", "-i", input_interface,
-                     "-p", "tcp", "-d", ip, "--dport", str(port), "-j", "REDIRECT", "--to-port", "8080"])
+                     "-p", "tcp", "-d", ip, "--dport", str(port), "-j", "REDIRECT", "--to-port", listening_port])
 
 
 
