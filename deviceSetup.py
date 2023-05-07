@@ -102,8 +102,8 @@ def restore_state(inputI, outputI):
     subprocess.call(["sudo", "systemctl", "enable", "systemd-resolved"])
     subprocess.call(["sudo", "systemctl", "start", "systemd-resolved"])
 
-    subprocess.call(["sudo", "fuser", "-k", "8080/tcp"])
-    subprocess.call(["sudo", "fuser", "-k", "8081/tcp"])
+    # subprocess.call(["sudo", "fuser", "-k", "8080/tcp"])
+    # subprocess.call(["sudo", "fuser", "-k", "8081/tcp"])
 
     print("Exited successfully.")
 

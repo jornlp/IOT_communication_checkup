@@ -1,17 +1,36 @@
-import ssl
+# https://robertheaton.com/2018/08/31/how-to-build-a-tcp-proxy-4/
+
+# root met als naam issuer hoogste cert
+# de rest custom aan de hand van info uit chain
+from OpenSSL.crypto import (X509Extension, X509,
+        dump_privatekey, dump_certificate,
+        load_certificate, load_privatekey,
+        PKey, TYPE_RSA, X509Req)
+from OpenSSL.SSL import FILETYPE_PEM
 
 
-def fetch_server_certificate(dns_name, port):
-    """Fetch the server certificate from the given dns_name and port
-    @param dns_name: The dns name to fetch the certificate for
-    @param port: The port that is serving the certificate
-    @return: X509 certificate object
-    """
-    pem_server_certificate = ssl.get_server_certificate((dns_name, port))
-    with open("test.pem", 'w') as f:
-        f.write(pem_server_certificate)
-    x509_server_certificate = pem_to_x509(pem_server_certificate)
-    return x509_server_certificate
 
+# load in PEM closest to root
+with open('example2.pem', 'rb') as f:
+    cert_data = f.read()
+    highest = load_certificate(FILETYPE_PEM, cert_data)
 
-fetch_server_certificate("www.example.org", 443)
+key = PKey()
+key.generate_key(TYPE_RSA, 2048)
+
+cert = X509()
+cert.set_version(highest.get_version())
+cert.set_serial_number(highest.get_serial_number())
+cert.set_subject(highest.get_issuer())
+cert.set_notBefore(highest.get_notBefore())
+cert.set_notAfter(highest.get_notAfter())
+cert.set_issuer(cert.get_subject())
+cert.set_pubkey(key)
+
+cert.sign(key, "sha256")
+
+with open("customCerts/fakeCA.pem", 'wb+') as f:
+    f.write(dump_certificate(FILETYPE_PEM, cert))
+
+with open("customCerts/fakeCAKEY.pem", 'wb+') as f:
+    f.write(dump_privatekey(FILETYPE_PEM, key))

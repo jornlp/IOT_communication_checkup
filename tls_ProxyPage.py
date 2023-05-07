@@ -113,6 +113,19 @@ class Ui_tlsWindow(object):
 
     def start_attack(self):
 
+        # certificate forgery
+        if self.comboBox_method.currentText() == "self signed":
+            pass
+        elif self.comboBox_method.currentText() == "server certificate copy":
+            pass
+        else:
+            pass
+
+
+
+
+
+
         # thread om proxy te draaien
         self.tls_thread = TLSWorker(self.ip, self.port)
         self.tls_thread.captured.connect(self.update_scroll_area)

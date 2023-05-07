@@ -178,6 +178,10 @@ class ReportWorker(QThread):
                         rootCert = self.getRoot(allCerts)
                         res = self.verifyCerts(certs, rootCert)
 
+
+                        # add to certificate list
+                        report.cert_collection_per_ip[ip] = [certs, rootCert]
+
                         fRes = []
 
                         for item in res:
@@ -201,6 +205,8 @@ class ReportWorker(QThread):
                             allCerts = self.get_certificates(ip, report.stream_dst_ip_dictionary_TCP[stream_nr][1])
                             rootCert = self.getRootX509(allCerts)
                             res = self.verifyCerts(allCerts, rootCert)
+
+                            report.cert_collection_per_ip[ip] = [allCerts, rootCert]
                         except:
                             not_found = True
 

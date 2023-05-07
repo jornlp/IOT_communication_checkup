@@ -23,3 +23,6 @@ host_report_output_normal_UDP = {}
 
 
 stream_button_dictionary = {}
+
+# ip: [certs], rootcert
+cert_collection_per_ip = {}
