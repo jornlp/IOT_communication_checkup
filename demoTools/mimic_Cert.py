@@ -27,6 +27,10 @@ cert.set_notAfter(highest.get_notAfter())
 cert.set_issuer(cert.get_subject())
 cert.set_pubkey(key)
 
+highest.get_extension_count()
+highest.get_extension()
+highest.add_extensions()
+
 cert.sign(key, "sha256")
 
 with open("customCerts/fakeCA.pem", 'wb+') as f:

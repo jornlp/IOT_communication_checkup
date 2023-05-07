@@ -9,10 +9,11 @@ class TLSWorker(QThread):
     finished = pyqtSignal()
     captured = pyqtSignal(str, str)
 
-    def __init__(self, ip, port):
+    def __init__(self, ip, port, option):
         super().__init__()
         self.ip = ip
         self.port = port
+        self.option = option
 
     def run(self):
         # geen mogelijkheid tot nieuwe proxy starten als proxy draait
@@ -21,7 +22,13 @@ class TLSWorker(QThread):
             button.setEnabled(False)
 
         server_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-        server_context.load_cert_chain('server.pem', 'server.key')
+
+        if self.option == 1:
+            server_context.load_cert_chain('forgedCertificates/fakeSELFSIGNED.pem', 'forgedCertificates/fakeSELFSIGNEDKEY.pem')
+        elif self.option == 2:
+            server_context.load_cert_chain('server.pem', 'server.key')
+        else:
+            server_context.load_cert_chain('server.pem', 'server.key')
 
         client_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
         client_context.check_hostname = False
@@ -32,8 +39,8 @@ class TLSWorker(QThread):
         proxy_port = 8081
 
         # endpoint
-        server_host = "93.184.216.34"
-        server_port = 443
+        server_host = self.ip
+        server_port = self.port
 
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as sock:
             sock.bind((proxy_ip, proxy_port))

@@ -5,6 +5,7 @@ from PyQt5.QtCore import Qt
 
 import deviceSetup
 from buttonWorker import ButtonWorker
+from certificateForgerWorker import CFWorker
 from confWorker import ConfWorker
 from httpWorker import HTTPWorker
 
@@ -115,19 +116,28 @@ class Ui_tlsWindow(object):
 
         # certificate forgery
         if self.comboBox_method.currentText() == "self signed":
-            pass
+            self.cert_thread = CFWorker(self.ip, 1)
+            self.cert_thread.finished.connect(self.cert_thread.quit)
+            self.cert_thread.finished.connect(self.cert_thread.deleteLater)
+            self.cert_thread.finished.connect(lambda: self.setup_proxy(1))
+            self.cert_thread.start()
         elif self.comboBox_method.currentText() == "server certificate copy":
-            pass
+            self.cert_thread = CFWorker(self.ip, 2)
+            self.cert_thread.finished.connect(self.cert_thread.quit)
+            self.cert_thread.finished.connect(self.cert_thread.deleteLater)
+            self.cert_thread.finished.connect(lambda: self.setup_proxy(2))
+            self.cert_thread.start()
         else:
-            pass
+            self.cert_thread = CFWorker(self.ip, 3)
+            self.cert_thread.finished.connect(self.cert_thread.quit)
+            self.cert_thread.finished.connect(self.cert_thread.deleteLater)
+            self.cert_thread.finished.connect(lambda: self.setup_proxy(3))
+            self.cert_thread.start()
 
 
-
-
-
-
+    def setup_proxy(self, option):
         # thread om proxy te draaien
-        self.tls_thread = TLSWorker(self.ip, self.port)
+        self.tls_thread = TLSWorker(self.ip, self.port, option)
         self.tls_thread.captured.connect(self.update_scroll_area)
         self.tls_thread.finished.connect(self.tls_thread.quit)
         self.tls_thread.finished.connect(self.tls_thread.deleteLater)
@@ -136,6 +146,8 @@ class Ui_tlsWindow(object):
         self.tls_thread.start()
 
         self.start_proxy.setText("Performing attack on {0}:{1}".format(self.ip, self.port))
+
+
 
 
     def stop_thread(self):
