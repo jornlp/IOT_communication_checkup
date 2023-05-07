@@ -10,15 +10,12 @@ from OpenSSL.SSL import FILETYPE_PEM
 
 class CFWorker(QThread):
     finished = pyqtSignal()
-    captured = pyqtSignal(str, str)
-
     def __init__(self, ip, option):
         super().__init__()
         self.ip = ip
         self.option = option
 
     def run(self):
-
 
         # make self signed cert based on server cert
         if self.option == 1:
@@ -48,6 +45,8 @@ class CFWorker(QThread):
 
             with open("forgedCertificates/fakeSELFSIGNEDKEY.pem", 'wb+') as f:
                 f.write(dump_privatekey(FILETYPE_PEM, rootKey))
+
+            self.finished.emit()
 
         # copy server cert and sign with root
         elif self.option == 2:

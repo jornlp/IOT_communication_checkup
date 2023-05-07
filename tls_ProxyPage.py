@@ -47,7 +47,7 @@ class Ui_tlsWindow(object):
 
         self.comboBox_method = QtWidgets.QComboBox(self.widget)
         self.comboBox_method.setObjectName("comboBox_inputInterface")
-        options = ["self signed", "server certificate copy", "full chain copy"]
+        options = ["self signed", "full chain copy"]
         self.comboBox_method.addItems(options)
         self.verticalLayout.addWidget(self.comboBox_method)
 
@@ -121,19 +121,12 @@ class Ui_tlsWindow(object):
             self.cert_thread.finished.connect(self.cert_thread.deleteLater)
             self.cert_thread.finished.connect(lambda: self.setup_proxy(1))
             self.cert_thread.start()
-        elif self.comboBox_method.currentText() == "server certificate copy":
+        elif self.comboBox_method.currentText() == "full chain copy":
             self.cert_thread = CFWorker(self.ip, 2)
             self.cert_thread.finished.connect(self.cert_thread.quit)
             self.cert_thread.finished.connect(self.cert_thread.deleteLater)
             self.cert_thread.finished.connect(lambda: self.setup_proxy(2))
             self.cert_thread.start()
-        else:
-            self.cert_thread = CFWorker(self.ip, 3)
-            self.cert_thread.finished.connect(self.cert_thread.quit)
-            self.cert_thread.finished.connect(self.cert_thread.deleteLater)
-            self.cert_thread.finished.connect(lambda: self.setup_proxy(3))
-            self.cert_thread.start()
-
 
     def setup_proxy(self, option):
         # thread om proxy te draaien

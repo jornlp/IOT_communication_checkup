@@ -16,8 +16,8 @@ class ConfWorker(QThread):
 
     def run(self):
         if self.add:
-            deviceSetup.configure_proxy(self.ip, self.port, self.listening_port)
+            deviceSetup.configure_reroute(self.ip, self.port, self.listening_port)
             self.finished.emit()
         else:
-            deviceSetup.clear_proxy_rules(self.ip, self.port, self.listening_port)
+            deviceSetup.clear_reroute_rules(self.ip, self.port, self.listening_port)
             self.finished.emit()

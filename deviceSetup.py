@@ -107,13 +107,13 @@ def restore_state(inputI, outputI):
 
     print("Exited successfully.")
 
-def configure_proxy(ip, port, listening_port):
-    atexit.register(clear_proxy_rules, ip, port, listening_port)
+def configure_reroute(ip, port, listening_port):
+    atexit.register(clear_reroute_rules, ip, port, listening_port)
 
     subprocess.call(["sudo", "iptables", "-t", "nat", "-A", "PREROUTING", "-i", input_interface,
                      "-p", "tcp", "-d", ip, "--dport", str(port), "-j", "REDIRECT", "--to-port", listening_port])
 
-def clear_proxy_rules(ip, port, listening_port):
+def clear_reroute_rules(ip, port, listening_port):
 
     #subprocess.call(["sudo", "fuser", "-k", "{}/tcp".format(listening_port)])
 
