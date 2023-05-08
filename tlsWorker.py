@@ -26,7 +26,7 @@ class TLSWorker(QThread):
         if self.option == 1:
             server_context.load_cert_chain('forgedCertificates/fakeSELFSIGNED.pem', 'forgedCertificates/fakeSELFSIGNEDKEY.pem')
         elif self.option == 2:
-            server_context.load_cert_chain('server.pem', 'server.key')
+            server_context.load_cert_chain('forgedCertificates/serverCERTCHAIN.pem', 'forgedCertificates/fakeSERVERKEY.pem')
 
         client_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
         client_context.check_hostname = False
