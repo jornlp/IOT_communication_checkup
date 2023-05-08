@@ -46,7 +46,11 @@ class TLSWorker(QThread):
             print("Man-in-the-middle proxy listening on {0}:{1}".format(proxy_ip, proxy_port))
             sys.stdout.flush()
             with server_context.wrap_socket(sock, server_side=True) as ssl_sock:
-                client_sock, addr = ssl_sock.accept()
+
+                try:
+                    client_sock, addr = ssl_sock.accept()
+                except:
+                    self.captured.emit("FAILED MITM ATTEMPT", "Client did not trust the offered certificates.")
 
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_sock:
                     with client_context.wrap_socket(server_sock, server_hostname=server_host) as ssl_sock_server:
