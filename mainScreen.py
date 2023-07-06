@@ -9,6 +9,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QMainWindow
 
 import capturePage
 import netifaces
@@ -16,7 +17,7 @@ import deviceSetup
 import sys
 
 
-class Ui_MainWindow(object):
+class Ui_MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
@@ -85,9 +86,8 @@ class Ui_MainWindow(object):
         self.label_2.setText(_translate("MainWindow", "Select output interface:"))
 
     def to_capturePage(self):
-        self.captureWindow = QtWidgets.QMainWindow()
-        self.ui = capturePage.Ui_captureWindow()
-        self.ui.setupUi(self.captureWindow, deviceSetup.input_interface)
+        self.captureWindow = capturePage.Ui_captureWindow()
+        self.captureWindow.setupUi(self.captureWindow, deviceSetup.input_interface, self.window())
         self.captureWindow.show()
 
     def set_interfaces(self):

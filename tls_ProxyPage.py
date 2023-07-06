@@ -2,19 +2,18 @@ import sys
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QMainWindow
 
-import deviceSetup
 from buttonWorker import ButtonWorker
 from certificateForgerWorker import CFWorker
 from confWorker import ConfWorker
-from httpWorker import HTTPWorker
 
 import re
 
 from tlsWorker import TLSWorker
 
 
-class Ui_tlsWindow(object):
+class Ui_tlsWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
@@ -22,6 +21,7 @@ class Ui_tlsWindow(object):
         self.dict_entry = dict_entry
         self.ip = dict_entry[3]
         self.port = dict_entry[1]
+        self.proxy_port = "8081"
 
         TLSWindow.setObjectName("MainWindow")
         TLSWindow.resize(1075, 882)
@@ -68,7 +68,7 @@ class Ui_tlsWindow(object):
         font.setWeight(75)
         self.start_proxy.setFont(font)
         self.start_proxy.setObjectName("start_proxy")
-        self.start_proxy.clicked.connect(self.configure_iptables_tls)
+        self.start_proxy.clicked.connect(self.start_attack)
 
         self.verticalLayout.addWidget(self.start_proxy)
 
@@ -100,17 +100,31 @@ class Ui_tlsWindow(object):
         _translate = QtCore.QCoreApplication.translate
         TLSWindow.setWindowTitle(_translate("MITM Page", "MITM Page"))
 
-        self.start_proxy.setText(_translate("HTTPWindow", "Start attack attempt! DEVICE MUST BE CONNECTED FIRST"))
+        self.start_proxy.setText(_translate("HTTPWindow", "Start attack attempt! (device must be connected first)"))
         self.stop_proxy.setText(_translate("HTTPWindow", "Stop attack attempt!"))
 
-    def configure_iptables_tls(self):
-        self.start_proxy.setEnabled(False)
-        self.stop_proxy.setEnabled(True)
-        self.conf_thread = ConfWorker(self.ip, self.port, True, "8081")
-        self.conf_thread.finished.connect(self.start_attack)
+    def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
+        self.close_window()
+        print("TLS proxy page closed.")
+        sys.stdout.flush()
+
+    def close_window(self):
+        self.conf_thread = ConfWorker(self.ip, self.port, False, self.proxy_port)
         self.conf_thread.finished.connect(self.conf_thread.quit)
         self.conf_thread.finished.connect(self.conf_thread.deleteLater)
         self.conf_thread.start()
+
+    def configure_iptables_tls(self, proxy_port):
+        self.proxy_port = proxy_port
+        self.start_proxy.setEnabled(False)
+        self.stop_proxy.setEnabled(True)
+        self.conf_thread = ConfWorker(self.ip, self.port, True, proxy_port)
+        self.conf_thread.finished.connect(self.conf_thread.quit)
+        self.conf_thread.finished.connect(self.conf_thread.deleteLater)
+        self.conf_thread.start()
+
+    def change_start_button(self):
+        self.start_proxy.setText("Start attack! (reconnect device first)")
 
     def start_attack(self):
 
@@ -121,6 +135,7 @@ class Ui_tlsWindow(object):
             self.cert_thread.finished.connect(self.cert_thread.deleteLater)
             self.cert_thread.finished.connect(lambda: self.setup_proxy(1))
             self.cert_thread.start()
+
         elif self.comboBox_method.currentText() == "full chain copy":
             self.cert_thread = CFWorker(self.ip, 2)
             self.cert_thread.finished.connect(self.cert_thread.quit)
@@ -131,21 +146,24 @@ class Ui_tlsWindow(object):
     def setup_proxy(self, option):
         # thread om proxy te draaien
         self.tls_thread = TLSWorker(self.ip, self.port, option)
+
+        # hier weet je de definitieve proxy poort
+        self.tls_thread.config.connect(self.configure_iptables_tls)
+        self.tls_thread.config.connect(lambda: self.start_proxy.setText("Performing attack on {0}:{1}, via local "
+                                                                        "port {2}".format(self.ip, self.port,
+                                                                                          self.proxy_port)))
+
         self.tls_thread.captured.connect(self.update_scroll_area)
         self.tls_thread.finished.connect(self.tls_thread.quit)
         self.tls_thread.finished.connect(self.tls_thread.deleteLater)
+        self.tls_thread.finished.connect(self.change_start_button)
         self.tls_thread.finished.connect(lambda: self.stop_proxy.setEnabled(False))
         self.tls_thread.finished.connect(lambda: self.start_proxy.setEnabled(True))
         self.tls_thread.start()
 
-        self.start_proxy.setText("Performing attack on {0}:{1}".format(self.ip, self.port))
-
-
-
-
     def stop_thread(self):
         # rules verwijderen uit iptables
-        self.conf_thread = ConfWorker(self.ip, self.port, False, "8081")
+        self.conf_thread = ConfWorker(self.ip, self.port, False, self.proxy_port)
         self.conf_thread.finished.connect(self.conf_thread.quit)
         self.conf_thread.finished.connect(self.conf_thread.deleteLater)
         self.conf_thread.start()

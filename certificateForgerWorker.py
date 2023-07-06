@@ -107,6 +107,9 @@ class CFWorker(QThread):
                 with open("forgedCertificates/fakeSERVERKEY.pem", 'wb+') as f:
                     f.write(dump_privatekey(FILETYPE_PEM, intermediate_key))
 
+            # empty file if necessary
+            with open(server_cert_chain, 'w'):
+                pass
 
             for cert in reversed(list((chain_list))):
                 with open(server_cert_chain, 'ab') as chain:

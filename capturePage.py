@@ -8,7 +8,9 @@
 import sys
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QWidget, QMainWindow
 
+import deviceSetup
 import report
 import reportPage
 from captureWorker import CaptureWorker
@@ -18,11 +20,14 @@ import http_ProxyPage
 import tls_ProxyPage
 
 
-class Ui_captureWindow(object):
+class Ui_captureWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-    def setupUi(self, CaptureWindow, input_interface):
+
+    def setupUi(self, CaptureWindow, input_interface, parent_window):
         self.input_interface = input_interface
+        self.parent_window = parent_window
+        self.RESTART = False
 
         CaptureWindow.setObjectName("MainWindow")
         CaptureWindow.resize(1075, 882)
@@ -65,8 +70,8 @@ class Ui_captureWindow(object):
         font.setWeight(75)
         self.stop_capture.setFont(font)
         self.stop_capture.setObjectName("stop_capture")
-
         self.stop_capture.clicked.connect(self.stop_thread)
+        self.stop_capture.setEnabled(False)
 
         self.verticalLayout.addWidget(self.stop_capture)
         CaptureWindow.setCentralWidget(self.centralwidget)
@@ -81,6 +86,11 @@ class Ui_captureWindow(object):
         self.retranslateUi(CaptureWindow)
         QtCore.QMetaObject.connectSlotsByName(CaptureWindow)
 
+    def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
+        deviceSetup.restore_state(deviceSetup.input_interface, deviceSetup.output_interface)
+        print("Capture page closed.")
+        sys.stdout.flush()
+
     def retranslateUi(self, captureWindow):
         _translate = QtCore.QCoreApplication.translate
         captureWindow.setWindowTitle(_translate("Capture Page", "Capture Page"))
@@ -90,6 +100,8 @@ class Ui_captureWindow(object):
     def start_packet_capture(self):
         self.capture_thread = CaptureWorker(self.input_interface)
         self.capture_thread.captured.connect(self.update_scroll_area)
+
+        self.capture_thread.finished.connect(self.restart_needed)
         self.capture_thread.finished.connect(self.capture_thread.quit)
         self.capture_thread.finished.connect(self.capture_thread.deleteLater)
         self.capture_thread.start()
@@ -102,12 +114,23 @@ class Ui_captureWindow(object):
             lambda: self.start_capture.setEnabled(True)
         )
 
+    def restart_needed(self, restart):
+        self.RESTART = restart
+        if restart:
+            self.stop_thread()
+
     def stop_thread(self):
         self.capture_thread.terminate()
-        self.stop_capture.setEnabled(False)
-        self.start_capture.setText("Start capture! (connect device first)")
-        self.start_capture.setEnabled(True)
-        self.write_report()
+        if not self.RESTART:
+            self.stop_capture.setEnabled(False)
+            self.start_capture.setText("Start capture! (connect device first)")
+            self.start_capture.setEnabled(True)
+            self.write_report()
+        else:
+            self.stop_capture.setEnabled(False)
+            self.start_capture.setText("Start capture! (selected interface was not found)")
+            self.start_capture.setEnabled(True)
+            self.RESTART = False
 
     def update_scroll_area(self, packet_info, packet_dict, stream_nr, tcp):
         packet_button = QtWidgets.QPushButton(self.scrollAreaWidgetContents)
@@ -157,13 +180,11 @@ class Ui_captureWindow(object):
 
     def start_proxy_window(self, dict_entry):
         if dict_entry[2] == "HTTP":
-            self.httpWindow = QtWidgets.QMainWindow()
-            self.ui = http_ProxyPage.Ui_httpWindow()
-            self.ui.setupUi(self.httpWindow, dict_entry)
+            self.httpWindow = http_ProxyPage.Ui_httpWindow()
+            self.httpWindow.setupUi(self.httpWindow, dict_entry)
             self.httpWindow.show()
 
         elif dict_entry[2] == "TLS":
-            self.tlsWindow = QtWidgets.QMainWindow()
-            self.ui = tls_ProxyPage.Ui_tlsWindow()
-            self.ui.setupUi(self.tlsWindow, dict_entry)
+            self.tlsWindow = tls_ProxyPage.Ui_tlsWindow()
+            self.tlsWindow.setupUi(self.tlsWindow, dict_entry)
             self.tlsWindow.show()

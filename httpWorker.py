@@ -1,12 +1,15 @@
 from PyQt5.QtCore import QThread, pyqtSignal
 
+import deviceSetup
 import report
 import socket
 import sys
 
+
 class HTTPWorker(QThread):
     finished = pyqtSignal()
     captured = pyqtSignal(str, str)
+    config = pyqtSignal(str)
 
     def __init__(self, ip, port):
         super().__init__()
@@ -23,10 +26,21 @@ class HTTPWorker(QThread):
         proxy_port = 8080
 
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            sock.bind((proxy_ip, proxy_port))
+            ok = False
+            while not ok:
+                try:
+                    sock.bind((proxy_ip, proxy_port))
+                    ok = True
+                except:
+                    proxy_port += 1
+
             sock.listen(1)
             print("Man-in-the-middle proxy listening on {}:{}".format(proxy_ip, proxy_port))
             sys.stdout.flush()
+
+            # signaal om het configureren van iptables te starten
+            self.config.emit(str(proxy_port))
+
             client_sock, client_addr = sock.accept()
             print("{} connected".format(client_addr[0], client_addr[1]))
 
@@ -52,7 +66,6 @@ class HTTPWorker(QThread):
                 except:
                     pass
 
-
                 try:
                     server_data = server_sock.recv(4096)
                     if not server_data:
@@ -69,4 +82,6 @@ class HTTPWorker(QThread):
             server_sock.close()
             client_sock.close()
             print('Communication ended.')
+            deviceSetup.clear_reroute_rules(self.ip, self.port, str(proxy_port))
+            sys.stdout.flush()
             self.finished.emit()
