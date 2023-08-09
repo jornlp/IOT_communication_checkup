@@ -100,8 +100,8 @@ class Ui_tlsWindow(QMainWindow):
         _translate = QtCore.QCoreApplication.translate
         TLSWindow.setWindowTitle(_translate("MITM Page", "MITM Page"))
 
-        self.start_proxy.setText(_translate("HTTPWindow", "Start attack attempt! (device must be connected first)"))
-        self.stop_proxy.setText(_translate("HTTPWindow", "Stop attack attempt!"))
+        self.start_proxy.setText(_translate("TLSWindow", "Start attack attempt! (device must be connected first)"))
+        self.stop_proxy.setText(_translate("TLSWindow", "Stop attack attempt!"))
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
         self.close_window()
@@ -169,10 +169,10 @@ class Ui_tlsWindow(QMainWindow):
         self.conf_thread.start()
 
         # knoppen terug enablen
-        self.button_thread = ButtonWorker()
-        self.button_thread.finished.connect(self.button_thread.quit)
-        self.button_thread.finished.connect(self.button_thread.deleteLater)
-        self.button_thread.start()
+        # self.button_thread = ButtonWorker()
+        # self.button_thread.finished.connect(self.button_thread.quit)
+        # self.button_thread.finished.connect(self.button_thread.deleteLater)
+        # self.button_thread.start()
 
         self.tls_thread.terminate()
         self.stop_proxy.setEnabled(False)

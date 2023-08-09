@@ -19,9 +19,9 @@ class TLSWorker(QThread):
 
     def run(self):
         # geen mogelijkheid tot nieuwe proxy starten als proxy draait
-        for stream_nr in report.stream_button_dictionary.keys():
-            button = report.stream_button_dictionary[stream_nr]
-            button.setEnabled(False)
+        # for stream_nr in report.stream_button_dictionary.keys():
+        #     button = report.stream_button_dictionary[stream_nr]
+        #     button.setEnabled(False)
 
         server_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
 

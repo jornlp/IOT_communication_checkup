@@ -21,7 +21,7 @@ host_report_output_normal_TCP = {}
 host_report_output_normal_UDP = {}
 
 
-
+# TCP streamnr: button
 stream_button_dictionary = {}
 
 # ip: [certs], rootcert

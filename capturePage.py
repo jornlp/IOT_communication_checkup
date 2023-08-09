@@ -16,7 +16,7 @@ import reportPage
 from captureWorker import CaptureWorker
 from reportWorker import ReportWorker
 from buttonWorker import ButtonWorker
-import http_ProxyPage
+import tcp_ProxyPage
 import tls_ProxyPage
 
 
@@ -179,10 +179,10 @@ class Ui_captureWindow(QMainWindow):
         button.setEnabled(True)
 
     def start_proxy_window(self, dict_entry):
-        if dict_entry[2] == "HTTP":
-            self.httpWindow = http_ProxyPage.Ui_httpWindow()
-            self.httpWindow.setupUi(self.httpWindow, dict_entry)
-            self.httpWindow.show()
+        if dict_entry[2] == "HTTP" or dict_entry[2] == "MQTT":
+            self.tcpWindow = tcp_ProxyPage.Ui_tcpWindow()
+            self.tcpWindow.setupUi(self.tcpWindow, dict_entry)
+            self.tcpWindow.show()
 
         elif dict_entry[2] == "TLS":
             self.tlsWindow = tls_ProxyPage.Ui_tlsWindow()

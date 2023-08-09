@@ -11,10 +11,10 @@ class ButtonWorker(QThread):
         super().__init__()
 
     def run(self):
+
+
         for stream_nr in report.stream_button_dictionary.keys():
             dict_entry = report.stream_dst_ip_dictionary_TCP[stream_nr]
-            if dict_entry[2] == "HTTP" or \
-                    dict_entry[2] == "TLS":
-                self.hit.emit(stream_nr, dict_entry)
+            self.hit.emit(stream_nr, dict_entry)
 
         self.finished.emit()

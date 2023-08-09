@@ -6,7 +6,7 @@ import socket
 import sys
 
 
-class HTTPWorker(QThread):
+class tcpWorker(QThread):
     finished = pyqtSignal()
     captured = pyqtSignal(str, str)
     config = pyqtSignal(str)
@@ -18,9 +18,9 @@ class HTTPWorker(QThread):
 
     def run(self):
         # geen mogelijkheid tot nieuwe proxy starten als proxy draait
-        for stream_nr in report.stream_button_dictionary.keys():
-            button = report.stream_button_dictionary[stream_nr]
-            button.setEnabled(False)
+        # for stream_nr in report.stream_button_dictionary.keys():
+        #     button = report.stream_button_dictionary[stream_nr]
+        #     button.setEnabled(False)
 
         proxy_ip = "172.16.1.1"
         proxy_port = 8080

@@ -145,6 +145,13 @@ class ReportWorker(QThread):
                 except:
                     pass
 
+                if "MQTT" in p:
+                    try:
+                        if "MQTT" not in report.stream_dst_ip_dictionary_TCP[stream_nr]:
+                            report.stream_dst_ip_dictionary_TCP[stream_nr][2] = "MQTT"
+                    except:
+                        pass
+
                 if "TLS" in str(p.layers):
                     if "TLS" not in report.stream_dst_ip_dictionary_TCP[stream_nr]:
                         report.stream_dst_ip_dictionary_TCP[stream_nr][2] = "TLS"
@@ -244,8 +251,10 @@ class ReportWorker(QThread):
                 combowarning = "<b>!!odd port for HTTP!!</b>"
             elif protocol == "TLS" and (port != 443 and port != 8443):
                 combowarning = "<b>!!odd port for TLS!!</b>"
-            elif protocol == "TCP" and port != 443:
+            elif protocol == "TCP" and (port != 443 and port != 1883):
                 combowarning = "<b>!!odd port for TCP!!</b>"
+            elif protocol == "MQTT" and (port != 1883):
+                combowarning = "<b>!!odd port for MQTT!!</b>"
 
             report.host_report_output_normal_TCP[stream_nr][
                 1] = "ip: {0}<br>stream number: {1}<br>protocol: {2}<br>port: {3}<br>{4}<br>".format(ip, stream_nr,
