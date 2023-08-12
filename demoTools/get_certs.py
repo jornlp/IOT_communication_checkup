@@ -37,4 +37,4 @@ def get_certificate(host, port):
         exit(1)
 
 
-get_certificate("93.184.216.34", 443)
+get_certificate("91.121.93.94", 443)

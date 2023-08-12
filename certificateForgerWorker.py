@@ -51,28 +51,37 @@ class CFWorker(QThread):
         # copy full chain
         elif self.option == 2:
             certs = report.cert_collection_per_ip[self.ip][0]
-            rootCert = report.cert_collection_per_ip[self.ip][1]
 
-            if (certs[-1].get_issuer() == certs[-1].get_subject()) and (rootCert != ''):
+            if certs[-1].get_issuer() == certs[-1].get_subject():
                 certs.pop(-1)
 
+            highest_cert = certs[-1]
 
-            # rootcert namaken
+
+            # rootcert maken
             root_key = PKey()
             root_key.generate_key(TYPE_RSA, 2048)
             certRoot = X509()
-            certRoot.set_version(rootCert.get_version())
-            certRoot.set_serial_number(rootCert.get_serial_number())
-            certRoot.set_subject(rootCert.get_subject())
-            certRoot.set_issuer(rootCert.get_subject())
-            certRoot.set_notBefore(rootCert.get_notBefore())
-            certRoot.set_notAfter(rootCert.get_notAfter())
+            certRoot.set_version(highest_cert.get_version())
+            certRoot.set_serial_number(123)
+
+            certRoot.set_subject(highest_cert.get_issuer())
+            certRoot.set_issuer(highest_cert.get_issuer())
+
+            certRoot.set_notBefore(highest_cert.get_notBefore())
+            certRoot.set_notAfter(highest_cert.get_notAfter())
             certRoot.set_pubkey(root_key)
 
-            for i in range(rootCert.get_extension_count()):
-                certRoot.add_extensions([rootCert.get_extension(i)])
+            basic = X509Extension(b"basicConstraints", True, b"CA:TRUE")
+            certRoot.add_extensions([basic])
+            key_use = X509Extension(b"keyUsage", True, b"keyCertSign, cRLSign")
+            certRoot.add_extensions([key_use])
+
 
             certRoot.sign(root_key, "sha256")
+
+
+
 
             # forge fake chain based on original chain
             with open("forgedCertificates/fakeROOT.pem", 'wb+') as f:
