@@ -2,12 +2,14 @@ import os
 import subprocess
 import atexit
 import sys
+import shutil
 
 global input_interface
 global output_interface
 global packet_dict
-
-
+proxy_counter = 0
+tcpWindows_opened = set()
+tlsWindows_opened = set()
 def configure_device():
     atexit.register(restore_state, input_interface, output_interface)
 
@@ -107,10 +109,10 @@ def restore_state(inputI, outputI):
     # subprocess.call(["sudo", "fuser", "-k", "8081/tcp"])
 
     # verwijder alle forged certificates
-    dir_to_remove = os.listdir("forgedCertificates")
-    for file in dir_to_remove:
-        file_path = os.path.join("forgedCertificates", file)
-        os.remove(file_path)
+    dir_to_clear = os.listdir("forgedCertificates")
+    for dir in dir_to_clear:
+        dir_path = os.path.join("forgedCertificates", dir)
+        shutil.rmtree(dir_path)
 
     print("State restored successfully.")
 

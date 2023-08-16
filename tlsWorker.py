@@ -11,11 +11,13 @@ class TLSWorker(QThread):
     captured = pyqtSignal(str, str)
     config = pyqtSignal(str)
 
-    def __init__(self, ip, port, option):
+    def __init__(self, ip, port, option, proxy_counter):
         super().__init__()
         self.ip = ip
         self.port = port
         self.option = option
+        self.proxy_counter = proxy_counter
+
 
     def run(self):
         # geen mogelijkheid tot nieuwe proxy starten als proxy draait
@@ -26,9 +28,14 @@ class TLSWorker(QThread):
         server_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
 
         if self.option == 1:
-            server_context.load_cert_chain('forgedCertificates/fakeSELFSIGNED.pem', 'forgedCertificates/fakeSELFSIGNEDKEY.pem')
+            self_signed_cert_location = "forgedCertificates/proxy_{0}/fakeSELFSIGNED.pem".format(self.proxy_counter)
+            self_signed_key_location = "forgedCertificates/proxy_{0}/fakeSELFSIGNEDKEY.pem".format(self.proxy_counter)
+            server_context.load_cert_chain(self_signed_cert_location, self_signed_key_location)
+
         elif self.option == 2:
-            server_context.load_cert_chain('forgedCertificates/serverCERTCHAIN.pem', 'forgedCertificates/fakeSERVERKEY.pem')
+            server_cert_chain_location = "forgedCertificates/proxy_{0}/serverCERTCHAIN.pem".format(self.proxy_counter)
+            server_key_location = "forgedCertificates/proxy_{0}/fakeSERVERKEY.pem".format(self.proxy_counter)
+            server_context.load_cert_chain(server_cert_chain_location, server_key_location)
 
         client_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
         client_context.check_hostname = False

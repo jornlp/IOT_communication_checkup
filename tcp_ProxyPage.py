@@ -16,12 +16,13 @@ class Ui_tcpWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-    def setupUi(self, TCPWindow, dict_entry):
+    def setupUi(self, TCPWindow, dict_entry, window_number):
         self.dict_entry = dict_entry
         self.ip = dict_entry[3]
         self.port = dict_entry[1]
         self.protocol = dict_entry[2]
         self.proxy_port = "8080"
+        self.window_number = window_number
 
         TCPWindow.setObjectName("MainWindow")
         TCPWindow.resize(1075, 882)
@@ -100,6 +101,7 @@ class Ui_tcpWindow(QMainWindow):
         self.stop_proxy.setText(_translate("TCPWindow", "Stop attack attempt!"))
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
+        deviceSetup.tcpWindows_opened.remove(self.window_number)
         self.close_window()
         print("TCP proxy page closed.")
         sys.stdout.flush()

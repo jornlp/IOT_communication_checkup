@@ -4,6 +4,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QMainWindow
 
+import deviceSetup
 from buttonWorker import ButtonWorker
 from certificateForgerWorker import CFWorker
 from confWorker import ConfWorker
@@ -17,11 +18,14 @@ class Ui_tlsWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-    def setupUi(self, TLSWindow, dict_entry):
+    def setupUi(self, TLSWindow, dict_entry, window_number):
         self.dict_entry = dict_entry
         self.ip = dict_entry[3]
         self.port = dict_entry[1]
         self.proxy_port = "8081"
+        self.proxy_counter = deviceSetup.proxy_counter
+        deviceSetup.proxy_counter += 1
+        self.window_number = window_number
 
         TLSWindow.setObjectName("MainWindow")
         TLSWindow.resize(1075, 882)
@@ -104,6 +108,7 @@ class Ui_tlsWindow(QMainWindow):
         self.stop_proxy.setText(_translate("TLSWindow", "Stop attack attempt!"))
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
+        deviceSetup.tlsWindows_opened.remove(self.window_number)
         self.close_window()
         print("TLS proxy page closed.")
         sys.stdout.flush()
@@ -130,14 +135,14 @@ class Ui_tlsWindow(QMainWindow):
 
         # certificate forgery
         if self.comboBox_method.currentText() == "self signed":
-            self.cert_thread = CFWorker(self.ip, 1)
+            self.cert_thread = CFWorker(self.ip, 1, self.proxy_counter)
             self.cert_thread.finished.connect(self.cert_thread.quit)
             self.cert_thread.finished.connect(self.cert_thread.deleteLater)
             self.cert_thread.finished.connect(lambda: self.setup_proxy(1))
             self.cert_thread.start()
 
         elif self.comboBox_method.currentText() == "full chain copy":
-            self.cert_thread = CFWorker(self.ip, 2)
+            self.cert_thread = CFWorker(self.ip, 2, self.proxy_counter)
             self.cert_thread.finished.connect(self.cert_thread.quit)
             self.cert_thread.finished.connect(self.cert_thread.deleteLater)
             self.cert_thread.finished.connect(lambda: self.setup_proxy(2))
@@ -145,7 +150,7 @@ class Ui_tlsWindow(QMainWindow):
 
     def setup_proxy(self, option):
         # thread om proxy te draaien
-        self.tls_thread = TLSWorker(self.ip, self.port, option)
+        self.tls_thread = TLSWorker(self.ip, self.port, option, self.proxy_counter)
 
         # hier weet je de definitieve proxy poort
         self.tls_thread.config.connect(self.configure_iptables_tls)

@@ -180,11 +180,35 @@ class Ui_captureWindow(QMainWindow):
 
     def start_proxy_window(self, dict_entry):
         if dict_entry[2] == "HTTP" or dict_entry[2] == "MQTT":
-            self.tcpWindow = tcp_ProxyPage.Ui_tcpWindow()
-            self.tcpWindow.setupUi(self.tcpWindow, dict_entry)
-            self.tcpWindow.show()
+            if 0 not in deviceSetup.tcpWindows_opened:
+                self.tcpWindow = tcp_ProxyPage.Ui_tcpWindow()
+                self.tcpWindow.setupUi(self.tcpWindow, dict_entry, 0)
+                deviceSetup.tcpWindows_opened.add(0)
+                self.tcpWindow.show()
+            elif 1 not in deviceSetup.tcpWindows_opened:
+                self.tcpWindow1 = tcp_ProxyPage.Ui_tcpWindow()
+                self.tcpWindow1.setupUi(self.tcpWindow1, dict_entry, 1)
+                deviceSetup.tcpWindows_opened.add(1)
+                self.tcpWindow1.show()
+            elif 2 not in deviceSetup.tcpWindows_opened:
+                self.tcpWindow2 = tcp_ProxyPage.Ui_tcpWindow()
+                self.tcpWindow2.setupUi(self.tcpWindow2, dict_entry, 2)
+                deviceSetup.tcpWindows_opened.add(2)
+                self.tcpWindow2.show()
 
         elif dict_entry[2] == "TLS":
-            self.tlsWindow = tls_ProxyPage.Ui_tlsWindow()
-            self.tlsWindow.setupUi(self.tlsWindow, dict_entry)
-            self.tlsWindow.show()
+            if 0 not in deviceSetup.tlsWindows_opened:
+                self.tlsWindow = tls_ProxyPage.Ui_tlsWindow()
+                self.tlsWindow.setupUi(self.tlsWindow, dict_entry, 0)
+                deviceSetup.tlsWindows_opened.add(0)
+                self.tlsWindow.show()
+            elif 1 not in deviceSetup.tlsWindows_opened:
+                self.tlsWindow1 = tls_ProxyPage.Ui_tlsWindow()
+                self.tlsWindow1.setupUi(self.tlsWindow1, dict_entry, 1)
+                deviceSetup.tlsWindows_opened.add(1)
+                self.tlsWindow1.show()
+            elif 2 not in deviceSetup.tlsWindows_opened:
+                self.tlsWindow2 = tls_ProxyPage.Ui_tlsWindow()
+                self.tlsWindow2.setupUi(self.tlsWindow2, dict_entry, 2)
+                deviceSetup.tlsWindows_opened.add(2)
+                self.tlsWindow2.show()
