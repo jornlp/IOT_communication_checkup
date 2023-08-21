@@ -291,7 +291,7 @@ class ReportWorker(QThread):
 
             combowarning = ""
             if protocol == "DNS" and port != 53:
-                combowarning = "<b>o!!dd port for DNS!!</b>"
+                combowarning = "<b>!!odd port for DNS!!</b>"
 
             report.host_report_output_normal_UDP[stream_nr][1] = "ip: {0}<br>stream number: {1}<br>protocol: " \
                                                                  "{2}<br>port: {3}<br>{4}<br>".format(ip, stream_nr,
