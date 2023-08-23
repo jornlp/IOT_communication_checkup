@@ -249,7 +249,7 @@ class ReportWorker(QThread):
 
             if protocol == "HTTP" and port != 80:
                 combowarning = "<b>!!odd port for HTTP!!</b>"
-            elif protocol == "TLS" and (port != 443 and port != 8443):
+            elif protocol == "TLS" and (port != 443 and port != 8443 and port != 8883):
                 combowarning = "<b>!!odd port for TLS!!</b>"
             elif protocol == "TCP" and (port != 443 and port != 1883):
                 combowarning = "<b>!!odd port for TCP!!</b>"
