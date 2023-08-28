@@ -4,6 +4,8 @@ import atexit
 import sys
 import shutil
 
+import report
+
 global input_interface
 global output_interface
 global packet_dict
@@ -68,7 +70,21 @@ def configure_device():
 
 # reverse setup
 def restore_state(inputI, outputI):
-    # disable forwarding again
+
+    # leeg report dicts
+    report.TCP_capture_dictionary = {}
+    report.UDP_capture_dictionary = {}
+    report.stream_dst_ip_dictionary_TCP = {}
+    report.stream_dst_ip_dictionary_UDP = {}
+    report.cipher_TLSVersion_verified_dictionary = {}
+    report.host_set = set()
+    report.host_report_output_normal_TCP = {}
+    report.host_report_output_normal_UDP = {}
+    report.stream_button_dictionary = {}
+    report.cert_collection_per_ip = {}
+
+
+    # disable forwarding
     subprocess.call(["sysctl", "-w", "net.ipv4.ip_forward=0"])
 
     # restore firewall rules

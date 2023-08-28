@@ -68,7 +68,7 @@ class Ui_ReportWindow(object):
 
     def retranslateUi(self, reportWindow):
         _translate = QtCore.QCoreApplication.translate
-        reportWindow.setWindowTitle(_translate("reportWindow", "reportWindow"))
+        reportWindow.setWindowTitle(_translate("Report Page", "Report Page"))
 
 
     def add_scaninfo_from_host(self):
